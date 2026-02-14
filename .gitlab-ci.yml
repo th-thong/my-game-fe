@@ -1,0 +1,50 @@
+stages:
+  - build
+  - release
+
+variables:
+  IMAGE_NAME: $CI_REGISTRY_IMAGE/my-game-fe
+  DOCKERFILE_PATH: ./Dockerfile
+
+.docker_setup: &docker_setup
+  image: docker:27-cli
+  services: 
+    - docker:27-dind
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+
+build-staging:
+  <<: *docker_setup
+  stage: build
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+  script:
+    - docker build -f $DOCKERFILE_PATH -t $IMAGE_NAME:$CI_COMMIT_SHORT_SHA  -t $IMAGE_NAME:dev .
+    - docker push $IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+    - docker push $IMAGE_NAME:dev
+
+build-prod:
+  <<: *docker_setup
+  stage: build
+  rules:
+    - if: '$CI_COMMIT_TAG'
+  script:
+    - echo "Building Production Release $CI_COMMIT_TAG..."
+    - docker build -f $DOCKERFILE_PATH -t $IMAGE_NAME:$CI_COMMIT_TAG -t $IMAGE_NAME:latest .
+    - docker push $IMAGE_NAME:$CI_COMMIT_TAG
+    - docker push $IMAGE_NAME:latest
+
+gitlab-release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: '$CI_COMMIT_TAG'
+  script:
+    - echo "Creating GitLab Release for $CI_COMMIT_TAG"
+  release:
+    tag_name: '$CI_COMMIT_TAG'
+    description: 'Release $CI_COMMIT_TAG'
+    assets:
+      links:
+        - name: 'Docker image'
+          url: 'https://$IMAGE_NAME:$CI_COMMIT_TAG'
