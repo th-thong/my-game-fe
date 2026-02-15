@@ -6,6 +6,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 import { Button } from "@/components/ui/button"
+import { Link } from "react-router-dom";
 
 export function NavBar() {
   return (
@@ -25,7 +26,9 @@ export function NavBar() {
       </NavigationMenu>
 
       <div className="ml-auto">
-        <Button size="sm">Login</Button>
+        <Button size="sm" asChild>
+          <Link to="/login">Login</Link>
+        </Button>
       </div>
       
     </nav>
