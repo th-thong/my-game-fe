@@ -36,9 +36,8 @@ export function SignUpForm({
       navigate("/login");
     },
 
-    onError: (error: any) => {
-      const errorMessage = error.response?.data?.message || error.message;
-      console.error("Signup error", errorMessage);
+    onError: (error: Error) => {
+      console.error("Signup error", error.message);
     },
   });
 

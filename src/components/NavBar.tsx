@@ -7,15 +7,10 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export function NavBar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    setIsLoggedIn(!!token);
-  }, []);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem("access_token"));
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");

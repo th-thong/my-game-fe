@@ -11,7 +11,7 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("access_token");
   if (token) {
-    config.headers.Authorization = "Bearer ${token}";
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
@@ -23,30 +23,30 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 &&!originalRequest.url.includes("/login") && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest.url.includes("/login") && !originalRequest._retry) {
+      
+      if (isRefreshing) {
+        return Promise.reject(error);
+      }
+
       originalRequest._retry = true;
       isRefreshing = true;
 
       try {
         const refreshToken = localStorage.getItem("refresh_token");
 
-        const res = await axios.post(
-          "${import.meta.env.VITE_API_URL}/user/token/refresh/",
-          {
-            refresh: refreshToken,
-          },
-        );
+        const res = await axios.post(`${import.meta.env.VITE_API_URL}/user/token/refresh/`, {
+          refresh: refreshToken,
+        });
 
         if (res.status === 200) {
           const newToken = res.data.access;
           localStorage.setItem("access_token", newToken);
-
-          originalRequest.headers.Authorization = "Bearer ${newToken}";
-
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return api(originalRequest);
         }
       } catch (refreshError) {
-        console.error("Session expired. Please login again.");
+        console.log(refreshError)
         localStorage.clear();
         window.location.href = "/login";
       } finally {

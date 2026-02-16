@@ -24,8 +24,8 @@ export function LoginForm({
       navigate("/");
     },
 
-    onError: (error: any) => {
-      console.log("Login failed", error);
+    onError: (error: Error) => {
+      toast.error(error.message);
     },
   });
 
