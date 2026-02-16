@@ -11,4 +11,5 @@ RUN pnpm run build
 FROM nginxinc/nginx-unprivileged:alpine
 
 COPY --from=build-stage --chown=nginx:nginx /app/dist /usr/share/nginx/html
+COPY default.conf.template /etc/nginx/templates/default.conf.template
 EXPOSE 8080
