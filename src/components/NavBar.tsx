@@ -10,7 +10,9 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 
 export function NavBar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem("access_token"));
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    () => !!localStorage.getItem("access_token"),
+  );
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
@@ -19,21 +21,27 @@ export function NavBar() {
   };
 
   return (
-    <nav className="flex h-14 w-full items-center border-b px-6 bg-background shadow-none">
-      <NavigationMenu>
-        <NavigationMenuList className="gap-2">
-          <NavigationMenuItem>
-            <NavigationMenuLink
-              href="/"
-              className={navigationMenuTriggerStyle()}
-            >
-              Home
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
+    <nav className="grid grid-cols-3 h-14 w-full items-center px-6 bg-background">
+      <div className="flex justify-start">
+        {/* <img src={logo} className="h-8" /> */}
+      </div>
 
-      <div className="ml-auto">
+      <div className="flex justify-center">
+        <NavigationMenu>
+          <NavigationMenuList className="gap-2">
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                href="/"
+                className={navigationMenuTriggerStyle()}
+              >
+                Home
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+      </div>
+
+      <div className="flex justify-end gap-4">
         {isLoggedIn ? (
           <div className="flex items-center gap-4">
             <Button size="sm" onClick={handleLogout}>
