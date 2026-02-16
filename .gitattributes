@@ -21,3 +21,4 @@
 *.svg     text
 *.woff    binary
 *.woff2   binary
+*.webp    binary
