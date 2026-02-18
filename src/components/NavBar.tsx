@@ -6,18 +6,17 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useUserStore } from "@/store/useUserStore";
+import { GameAccountCombobox } from "./GameAccountCombobox";
 
 export function NavBar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    () => !!localStorage.getItem("access_token"),
-  );
+  const isLoggedIn = useUserStore((state) => state.isLoggedIn)
 
-  const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    setIsLoggedIn(false);
-    window.location.reload();
+  const navigate = useNavigate();
+
+  const handleSetting = () => {
+    navigate("/settings");
   };
 
   return (
@@ -42,10 +41,11 @@ export function NavBar() {
       </div>
 
       <div className="flex justify-end gap-4">
+        <GameAccountCombobox></GameAccountCombobox>
         {isLoggedIn ? (
           <div className="flex items-center gap-4">
-            <Button size="sm" onClick={handleLogout}>
-              Logout
+            <Button size="sm" variant="ghost" onClick={handleSetting}>
+              Setting
             </Button>
           </div>
         ) : (

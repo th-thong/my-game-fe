@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LoginPage } from "@/pages/LoginPage";
 import { SignUpPage } from "@/pages/SignupPage";
 import { Toaster } from "@/components/ui/sonner";
+import { SettingsPage } from "@/pages/SettingPage";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
 
         <Route element={<AuthLayout />}>
