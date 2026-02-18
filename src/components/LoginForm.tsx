@@ -6,22 +6,40 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner"
+import { toast } from "sonner";
+import { useUserStore } from "@/store/useUserStore";
+import { accountApi } from "@/services/accountMng";
+import { gameAccountApi } from "@/services/gameAccount";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const navigate = useNavigate();
-
+  const setUser = useUserStore((state) => state.setUser);
+  const setGameUidList = useUserStore((state) => state.setGameUidList);
   const mutation = useMutation({
     mutationFn: (variables: { email: string; password: string }) =>
       authApi.login(variables),
 
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       console.log("Successfully logged in", data);
       localStorage.setItem("access_token", data.access_token);
+      localStorage.setItem("refresh_token", data.access_token);
       navigate("/");
+      try {
+        const accountData = await accountApi.getAccountData();
+        setUser(accountData.email, accountData.id, accountData.user_name);
+      } catch (error) {
+        console.error("Get account data failed", error);
+      }
+
+      try {
+        const gameAccountList = await gameAccountApi.getGameUidList();
+        setGameUidList(gameAccountList);
+      } catch (error) {
+        console.log("Set game Uid failed", error);
+      }
     },
 
     onError: (error: Error) => {
