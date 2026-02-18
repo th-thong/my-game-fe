@@ -20,7 +20,6 @@ export function AuthLayout() {
         </Link>
       </Button>
 
-      {/* Vùng chứa Form Login/Register */}
       <main className="w-full max-w-100">
           <Outlet /> 
       </main>

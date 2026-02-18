@@ -4,10 +4,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { GameAccountCombobox } from "./GameAccountCombobox";
-import { ImportSource } from "./ImportSource";
+import { GameAccountCombobox } from "@/components/GameAccountCombobox";
+import { ImportSource } from "@/features/setting/components/ImportSource";
 
-export function GameDataSetting() {
+export function DataSetting() {
   const gameUIDList = useUserStore((state) => state.gameUIDList);
 
   return (

@@ -1,14 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { useUserStore } from "@/store/useUserStore";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { InlineEditableField } from "@/components/InlineEditableField";
 
 export function AccountSetting() {
   const email = useUserStore((state) => state.email);
   const id = useUserStore((state) => state.id);
   const userName = useUserStore((state) => state.userName);
+
+  const handleEdit = () => {
+    console.log("Place holder");
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -31,42 +35,18 @@ export function AccountSetting() {
           </div>
 
           <Separator />
-
-          <div className="space-y-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Địa chỉ Email</Label>
-              <div className="flex w-full max-w-sm items-center space-x-2">
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  readOnly
-                  className="bg-muted/50"
-                />
-                <Button variant="outline">Change Email</Button>
-              </div>
-            </div>
-          </div>
+          <InlineEditableField
+            label="Email"
+            initialValue={email}
+            onSave={handleEdit}
+          />
           <Separator />
 
-
-          <div className="space-y-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">User Name</Label>
-              <div className="flex w-full max-w-sm items-center space-x-2">
-                <Input
-                  id="userName"
-                  type="text"
-                  value={userName}
-                  readOnly
-                  className="bg-muted/50"
-                />
-                <Button variant="outline">Change User Name</Button>
-              </div>
-            </div>
-          </div>
-
-
+          <InlineEditableField
+            label="User Name"
+            initialValue={userName}
+            onSave={handleEdit}
+          />
         </CardContent>
       </Card>
     </div>
