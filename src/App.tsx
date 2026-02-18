@@ -10,7 +10,7 @@ import { SettingsPage } from "@/pages/SettingPage";
 function App() {
   return (
     <BrowserRouter>
-      <Toaster position="top-right" richColors />
+      <Toaster position="bottom-right" richColors />
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
