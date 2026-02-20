@@ -6,10 +6,10 @@ import standardWeaponBanner from "@/assets/banner/standard_weapon.webp";
 import newbieBanner from "@/assets/banner/newbie.webp";
 import choicebBanner from "@/assets/banner/choice.webp";
 import giveBanner from "@/assets/banner/give.webp";
-import { useState } from "react";
+import { useBanner } from "@/features/banner/hooks/useBanner";
 
 export function BannerSelector() {
-  const [activeBanner, setActiveBanner] = useState<number>(0);
+  const { setBannerId, activeBanner, setActiveBanner } = useBanner();
 
   const banners = [
     { id: 0, src: characterBanner },
@@ -21,13 +21,18 @@ export function BannerSelector() {
     { id: 6, src: giveBanner },
   ];
 
+  const handleBannerClick = (id: number) => {
+    setActiveBanner(id);
+    setBannerId(id);
+  };
+
   return (
     <div className="flex flex-col pl-4 gap-2 pt-2">
       {banners.map((banner) => (
-        <div key={banner.id} className="w-40 h-auto relative">
+        <div key={banner.id} className="w-40 h-auto">
           <div
-            onClick={() => setActiveBanner(banner.id)}
-            className={`w-full h-full transition-transform duration-150 ease-in-out cursor-pointer ${
+            onClick={() => handleBannerClick(banner.id)}
+            className={`w-full h-full cursor-pointer ${
               activeBanner === banner.id ? "scale-115" : "scale-100"
             }`}
           >
