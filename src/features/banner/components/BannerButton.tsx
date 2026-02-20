@@ -7,7 +7,7 @@ interface BannerButtonProps {
 
 export function BannerButton({ imageSrc, altText = "" }: BannerButtonProps) {
   return (
-    <Button className="p-0 w-40 h-auto rounded-none border-2 border-white-500">
+    <Button className="p-0 w-auto h-auto rounded-none border-2 border-white-500">
       <img src={imageSrc} alt={altText} />
     </Button>
   );
