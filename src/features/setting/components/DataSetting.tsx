@@ -1,67 +1,50 @@
-import { Button } from "@/components/ui/button";
-import { useUserStore } from "@/store/useUserStore";
+import { useState } from "react";
+import { useImport } from "@/features/setting/hooks/useImport";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { GameAccountCombobox } from "@/components/GameAccountCombobox";
+import { GameAccountData } from "./GameAccountData";
 import { ImportSource } from "@/features/setting/components/ImportSource";
+import { ManageAccountDialog } from "./ManageAccountDialog";
+import { ImportField } from "@/components/ImportField";
 
 export function DataSetting() {
-  const gameUIDList = useUserStore((state) => state.gameUIDList);
+  const { importData, isLoading } = useImport();
+  const [urlInput, setUrlInput] = useState("");
+
+  const handleImportKuro = () => {
+    if (!urlInput) return;
+    importData("kuro", urlInput);
+    setUrlInput("");
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <Card className="border-none shadow-none bg-transparent">
         <CardContent className="px-0 space-y-6">
-          <div className="dark bg-background">
-            <GameAccountCombobox />
-            <Button>Manage Account</Button>
+          <div className="flex items-center gap-4 dark bg-background p-2 rounded-lg">
+            <ManageAccountDialog />
           </div>
+
+          <Separator />
+
+          <ImportField
+            id="import-url-kuro"
+            label="Import URL (Kuro)"
+            value={urlInput}
+            onChange={setUrlInput}
+            onImport={handleImportKuro}
+            isLoading={isLoading}
+          />
+
+          <Separator />
+
+          <GameAccountData />
 
           <Separator />
 
           <div className="space-y-4">
-            <div className="grid gap-2">
-              <Label htmlFor="url">Import URL</Label>
-              <div className="flex w-full items-center space-x-2">
-                <Input id="url" type="url" className="bg-muted/50" />
-                <Button variant="outline">Import</Button>
-              </div>
-            </div>
-          </div>
-          <Separator />
-          <div className="space-y-4 flex flex-row">
-            {gameUIDList.length > 0 ? (
-              gameUIDList.map((uid) => (
-                <div className="grid gap-2">
-                  <Label htmlFor="url">OAUTH Code</Label>
-                  <div className="flex w-full items-center space-x-2">
-                    <Input
-                      id="url"
-                      type="url"
-                      value={uid}
-                      readOnly
-                      className="bg-muted/50"
-                    />
-                    <Input
-                      id="url"
-                      type="url"
-                      readOnly
-                      className="bg-muted/50"
-                    />
-                    <Button variant="outline">Import</Button>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p>No game account</p>
-            )}
-          </div>
-          <Separator />
-
-          <div>
-            <Label>Import from other source</Label>
+            <Label>Import from other sources</Label>
             <ImportSource />
           </div>
         </CardContent>
