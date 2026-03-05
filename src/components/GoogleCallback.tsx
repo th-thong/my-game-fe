@@ -1,4 +1,3 @@
-// components/GoogleCallback.tsx hoặc xử lý trong App.tsx
 import { useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import api, { setAccessToken } from "@/services/api";
@@ -7,23 +6,18 @@ import { useUserStore } from "@/store/useUserStore";
 export function GoogleCallback() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const setUser = useUserStore((state) => state.setUser);
+  const fetchUserData = useUserStore((state) => state.fetchUserData);
 
   useEffect(() => {
     const code = searchParams.get("code");
 
     if (code) {
       api
-        .post("/dj-rest-auth/google/", { code })
+        .post("account/dj-rest-auth/google/", { code })
         .then((res) => {
-
           setAccessToken(res.data.access);
 
-          setUser({
-            email: res.data.user.email,
-            id: res.data.user.pk,
-            userName: res.data.user.username,
-          });
+          fetchUserData();
 
           navigate("/", { replace: true });
         })
@@ -35,5 +29,5 @@ export function GoogleCallback() {
     }
   }, [searchParams]);
 
-  return <div>Đang xác thực với Google...</div>;
+  return <div>Verifying with Google...</div>;
 }

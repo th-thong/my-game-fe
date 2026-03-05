@@ -17,7 +17,7 @@ export function Right() {
     <div className="flex justify-end gap-4">
       <GameAccountCombobox />
       {isLoading ? (
-        <div className="w-16 h-8 bg-muted animate-pulse rounded-md" />
+        <div className="w-15 h-8 bg-muted animate-pulse rounded-md" />
       ) : isLoggedIn ? (
         <Button size="sm" variant="ghost" onClick={handleSetting}>
           Setting

@@ -5,24 +5,24 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-} from "@/components/ui/combobox"
-import { useUserStore } from "@/store/useUserStore"
+} from "@/components/ui/combobox";
+import { useUserStore } from "@/store/useUserStore";
 
 export function GameAccountCombobox() {
-  const gameAccountList = useUserStore((state)=>state.gameUIDList)
+  const gameAccountList = useUserStore((state) => state.gameAccountList);
   return (
     <Combobox items={gameAccountList}>
       <ComboboxInput placeholder="Select Game Account" />
-      <ComboboxContent>
+      <ComboboxContent className="dark bg-background text-foreground">
         <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
           {(item) => (
-            <ComboboxItem key={item} value={item}>
-              {item}
+            <ComboboxItem key={item.uid} value={item.uid}>
+              {item.uid}
             </ComboboxItem>
           )}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
-  )
+  );
 }

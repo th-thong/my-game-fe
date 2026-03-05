@@ -5,24 +5,28 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { Link, useLocation } from "react-router-dom";
 
 const MENU = [{ name: "Home", href: "/" }];
 
 export function Middle() {
+  const location = useLocation();
+
   return (
     <div className="flex justify-center">
       <NavigationMenu>
         <NavigationMenuList className="gap-2">
-          <NavigationMenuItem>
-            {MENU.map((item) => (
+          {MENU.map((item) => (
+            <NavigationMenuItem key={item.href}>
               <NavigationMenuLink
-                href={item.href}
+                asChild
                 className={navigationMenuTriggerStyle()}
+                active={location.pathname === item.href}
               >
-                {item.name}
+                <Link to={item.href}>{item.name}</Link>
               </NavigationMenuLink>
-            ))}
-          </NavigationMenuItem>
+            </NavigationMenuItem>
+          ))}
         </NavigationMenuList>
       </NavigationMenu>
     </div>

@@ -55,7 +55,8 @@ api.interceptors.response.use(
 
     if (
       error.response?.status === 401 &&
-      !originalRequest.url?.includes("/dj-rest-auth/login") &&
+      !originalRequest.url?.includes("account/dj-rest-auth/login") &&
+      !originalRequest.url?.includes("/account/refresh/") &&
       !originalRequest._retry
     ) {
       if (isRefreshing) {

@@ -13,7 +13,7 @@ function App() {
   const initAuth = useUserStore((state) => state.initAuth);
   useEffect(() => {
     initAuth();
-  }, [initAuth]);
+  }, []);
   return (
     <BrowserRouter>
       <Toaster position="bottom-right" richColors />

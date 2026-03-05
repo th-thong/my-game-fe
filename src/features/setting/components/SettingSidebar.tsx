@@ -21,10 +21,7 @@ const data = {
     {
       title: "Account Setting",
       url: "#",
-      items: [
-        { title: "Account", url: "/settings" },
-        { title: "Game Data", url: "/settings?category=game-data" },
-      ],
+      items: [{ title: "Game Data", url: "/settings?category=game-data" }],
     },
   ],
 };
