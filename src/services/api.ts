@@ -1,7 +1,21 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+import type { InternalAxiosRequestConfig } from "axios";
+import { useUserStore } from "@/store/useUserStore";
+
+interface FailedRequest {
+  resolve: (token: string) => void;
+  reject: (error: AxiosError) => void;
+}
+
+let accessToken: string | null = null;
+
+export const setAccessToken = (token: string | null) => {
+  accessToken = token;
+};
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000",
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -9,50 +23,80 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
   }
   return config;
 });
 
 let isRefreshing = false;
+let failedQueue: FailedRequest[] = [];
+
+const processQueue = (
+  error: AxiosError | null,
+  token: string | null = null,
+) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else if (token) {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
 
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
 
-    if (error.response?.status === 401 && !originalRequest.url.includes("/login") && !originalRequest._retry) {
-      
+    if (
+      error.response?.status === 401 &&
+      !originalRequest.url?.includes("/dj-rest-auth/login") &&
+      !originalRequest._retry
+    ) {
       if (isRefreshing) {
-        return Promise.reject(error);
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return api(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
       }
 
       originalRequest._retry = true;
       isRefreshing = true;
 
       try {
-        const refreshToken = localStorage.getItem("refresh_token");
-
-        const res = await axios.post(`${import.meta.env.VITE_API_URL}/user/refresh/`, {
-          refresh: refreshToken,
-        });
+        const res = await api.post("/dj-rest-auth/token/refresh/");
 
         if (res.status === 200) {
           const newToken = res.data.access;
-          localStorage.setItem("access_token", newToken);
+          setAccessToken(newToken);
+
+          processQueue(null, newToken);
+
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return api(originalRequest);
         }
       } catch (refreshError) {
-        console.log(refreshError)
-        localStorage.clear();
+        const axiosError = refreshError as AxiosError;
+        processQueue(axiosError, null);
+
+        const { logout } = useUserStore.getState();
+        logout();
         window.location.href = "/login";
+        return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
+
     return Promise.reject(error);
   },
 );

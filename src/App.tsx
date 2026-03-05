@@ -3,11 +3,17 @@ import { MainLayout } from "@/layout/MainLayout";
 import { AuthLayout } from "@/layout/AuthLayout";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LoginPage } from "@/pages/LoginPage";
-import { SignUpPage } from "@/pages/SignupPage";
 import { Toaster } from "@/components/ui/sonner";
 import { SettingsPage } from "@/pages/SettingPage";
+import { GoogleCallback } from "@/components/GoogleCallback";
+import { useUserStore } from "./store/useUserStore";
+import { useEffect } from "react";
 
 function App() {
+  const initAuth = useUserStore((state) => state.initAuth);
+  useEffect(() => {
+    initAuth();
+  }, [initAuth]);
   return (
     <BrowserRouter>
       <Toaster position="bottom-right" richColors />
@@ -19,7 +25,7 @@ function App() {
 
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/auth/google/callback" element={<GoogleCallback />} />
         </Route>
       </Routes>
     </BrowserRouter>
