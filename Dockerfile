@@ -1,13 +1,15 @@
 FROM node:20-alpine AS build-stage
 
+RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN npm install
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install --frozen-lockfile
 COPY . .
-RUN npm run build
+RUN pnpm run build
 
 
 FROM nginxinc/nginx-unprivileged:alpine
 
 COPY --from=build-stage --chown=nginx:nginx /app/dist /usr/share/nginx/html
+COPY default.conf.template /etc/nginx/templates/default.conf.template
 EXPOSE 8080
