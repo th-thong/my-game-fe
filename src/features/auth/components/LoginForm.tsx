@@ -1,67 +1,52 @@
-import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
-import { useLogin } from "@/features/auth/hooks/useLogin";
-import { LabeledInput } from "@/components/LabelInput";
-import { PasswordInput } from "@/features/auth/components/PasswordInput";
-import { LoadingButton } from "@/components/LoadingButton";
+import { useOAuth } from "@/features/auth/hooks/useOAuth";
+import { Field, FieldGroup } from "@/components/ui/field";
+
+import { Button } from "@/components/ui/button";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const { login, isPending, isError } = useLogin();
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-
-    login({ email, password });
-  };
+  const { loginWithGoogle, isLoading } = useOAuth();
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
+        <CardHeader className="text-center">
+          <CardTitle className="text-xl">Welcome back</CardTitle>
+          <CardDescription>
+            Login with your Google account
+          </CardDescription>
+        </CardHeader>
         <CardContent className="pt-6">
-          <form onSubmit={handleSubmit}>
-            <div className="grid gap-6">
-              <LabeledInput
-                label="Email"
-                id="email"
-                name="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-                autoComplete="email"
-              />
-              <PasswordInput
-                label="Password"
-                id="password"
-                name="password"
-                type="password"
-                required
-                autoComplete="current-password"
-              />
-
-              {isError && (
-                <p className="text-sm font-medium text-destructive">
-                  Invalid email or password. Please try again.
-                </p>
-              )}
-
-              <LoadingButton isLoading={isPending} loadingText="Logging in...">
-                Login
-              </LoadingButton>
-
-              <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <Link to="/signup" className="underline underline-offset-4">
-                  Sign up
-                </Link>
-              </div>
-            </div>
+          <form>
+            <FieldGroup>
+              <Field>
+                <Button
+                  variant="outline"
+                  type="button"
+                  disabled={isLoading}
+                  onClick={loginWithGoogle}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path
+                      d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  {isLoading ? "Connecting..." : "Login with Google"}
+                </Button>
+              </Field>
+            </FieldGroup>
           </form>
         </CardContent>
       </Card>

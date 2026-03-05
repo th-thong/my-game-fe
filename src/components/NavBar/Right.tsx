@@ -5,6 +5,7 @@ import { GameAccountCombobox } from "@/components/GameAccountCombobox";
 
 export function Right() {
   const isLoggedIn = useUserStore((state) => state.isLoggedIn);
+  const isLoading = useUserStore((state) => state.isLoading);
 
   const navigate = useNavigate();
 
@@ -15,12 +16,12 @@ export function Right() {
   return (
     <div className="flex justify-end gap-4">
       <GameAccountCombobox />
-      {isLoggedIn ? (
-        <div className="flex items-center gap-4">
-          <Button size="sm" variant="ghost" onClick={handleSetting}>
-            Setting
-          </Button>
-        </div>
+      {isLoading ? (
+        <div className="w-16 h-8 bg-muted animate-pulse rounded-md" />
+      ) : isLoggedIn ? (
+        <Button size="sm" variant="ghost" onClick={handleSetting}>
+          Setting
+        </Button>
       ) : (
         <Button size="sm" asChild>
           <Link to="/login">Login</Link>
