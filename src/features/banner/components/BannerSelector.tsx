@@ -12,13 +12,15 @@ export function BannerSelector() {
   const { setBannerId, activeBanner, setActiveBanner } = useBanner();
 
   const banners = [
-    { id: 0, src: characterBanner },
-    { id: 1, src: weaponBanner },
-    { id: 2, src: standardCharacterBanner },
-    { id: 3, src: standardWeaponBanner },
-    { id: 4, src: newbieBanner },
-    { id: 5, src: choicebBanner },
-    { id: 6, src: giveBanner },
+    { id: 1, src: characterBanner },
+    { id: 2, src: weaponBanner },
+    { id: 3, src: standardCharacterBanner },
+    { id: 4, src: standardWeaponBanner },
+    { id: 5, src: newbieBanner },
+    { id: 6, src: choicebBanner },
+    { id: 7, src: giveBanner },
+    { id: 8, src: giveBanner },
+    { id: 9, src: giveBanner },
   ];
 
   const handleBannerClick = (id: number) => {

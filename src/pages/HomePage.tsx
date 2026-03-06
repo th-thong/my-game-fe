@@ -6,16 +6,16 @@ import { Separator } from "@/components/ui/separator";
 
 export function HomePage() {
   return (
-    <div className="grid grid-cols-[1fr_3fr_1fr] gap-0">
-      <div className="min-w-0 pl-2">
+    <div className="grid grid-cols-[1fr_4fr_1fr] gap-0 h-full">
+      <div className="min-w-0 max-w-100 pl-2 h-full overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <BannerSelector />
       </div>
-      <div className="min-w-0 w-full pr-5">
+      <div className="min-w-0 w-full pl-0 pr-10 h-full overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <GachaHistoryDisplayCard />
       </div>
-      <div className="min-w-0 pr-5 gap-10">
-        <IngameStat/>
-        <Separator/>
+      <div className="min-w-0 pr-5 h-full overflow-y-auto flex flex-col gap-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <IngameStat />
+        <Separator />
         <GachaStatistic />
       </div>
     </div>
