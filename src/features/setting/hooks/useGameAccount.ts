@@ -24,7 +24,7 @@ export function useGameAccount() {
   const createAccount = async (uid: string) => {
     setIsAdding(true);
     try {
-      const res = await api.post("/account/game-account/", { uid });
+      const res = await api.post("/account/game-accounts/", { uid });
 
       const newAccount = {
         id: res.data.id,
@@ -47,9 +47,7 @@ export function useGameAccount() {
   const deleteAccount = async (uid: string) => {
     setIsDeleting(uid);
     try {
-      await api.delete("/account/game-account/", {
-        data: { uid: uid },
-      });
+      await api.delete(`/account/game-accounts/${uid}/`);
 
       setGameAccountList(gameAccountList.filter((acc) => acc.uid !== uid));
       toast.success("Delete game account successfully!");
@@ -64,8 +62,7 @@ export function useGameAccount() {
   const updateOauthCode = async (uid: string, newOauthCode: string) => {
     setIsUpdating(uid);
     try {
-      await api.put("/account/game-account/", {
-        uid: uid,
+      await api.patch(`/account/game-accounts/${uid}/`, {
         oauth_code: newOauthCode,
       });
 

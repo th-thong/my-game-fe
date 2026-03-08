@@ -7,34 +7,39 @@ import {
   ComboboxList,
 } from "@/components/ui/combobox";
 import { useUserStore } from "@/store/useUserStore";
-import { useState, useEffect } from "react";
 
-export function GameAccountCombobox() {
+interface GameAccountComboboxProps {
+  onSelectionChange?: () => void;
+}
+
+export function GameAccountCombobox({
+  onSelectionChange,
+}: GameAccountComboboxProps) {
   const gameAccountList = useUserStore((state) => state.gameAccountList);
-  const STORAGE_KEY = "selected_game_uid";
+  const selectedGameUid = useUserStore((state) => state.selectedGameUid);
+  const setSelectedGameUid = useUserStore((state) => state.setSelectedGameUid);
 
-  const [selectedUid, setSelectedUid] = useState<string | null>(() => {
-    return localStorage.getItem(STORAGE_KEY);
-  });
-
-  useEffect(() => {
-    if (selectedUid) {
-      localStorage.setItem(STORAGE_KEY, selectedUid);
-    }
-  }, [selectedUid]);
+  const handleValueChange = (uid: string | null) => {
+    setSelectedGameUid(uid);
+    onSelectionChange?.();
+  };
 
   return (
     <Combobox
-      value={selectedUid}
-      onValueChange={setSelectedUid}
+      value={selectedGameUid}
+      onValueChange={handleValueChange}
       items={gameAccountList}
     >
       <ComboboxInput placeholder="Select Game Account" />
-      <ComboboxContent className="dark bg-background text-foreground">
+      <ComboboxContent>
         <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
           {(item) => (
-            <ComboboxItem key={item.uid} value={item.uid}>
+            <ComboboxItem
+              key={item.uid}
+              value={item.uid}
+              onPointerDown={(e) => e.stopPropagation()}
+            >
               {item.uid}
             </ComboboxItem>
           )}

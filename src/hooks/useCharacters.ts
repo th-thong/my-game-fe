@@ -1,69 +1,85 @@
-import { useState, useEffect, useCallback } from "react";
 import api from "@/services/api";
 
+export interface Element {
+  ID: number;
+  Icon: string;
+  Name: string;
+}
+
+export interface WeaponType {
+  ID: number;
+  Name: string;
+  Icon: string;
+}
+
 export interface Character {
-  id: string;
-  name: string;
-  roundIcon: string;
+  DBId: string;
+  ID: number;
+  Name: string;
+  QualityID: number;
+  Element: Element;
+  RoleHeadIcon: string;
+  WeaponType: WeaponType;
 }
 
 const CACHE_KEY = "wuwa_characters_cache";
+let fetchPromise: Promise<Character[]> | null = null;
+
+const preloadImages = (chars: Character[]) => {
+  chars.forEach((char) => {
+    const img = new Image();
+    img.src = char.RoleHeadIcon;
+  });
+};
+
+export function fetchCharacters(): Promise<Character[]> {
+  if (fetchPromise) return fetchPromise;
+
+  const cachedData = localStorage.getItem(CACHE_KEY);
+  if (cachedData) {
+    const parsed = JSON.parse(cachedData);
+    fetchPromise = Promise.resolve(parsed);
+    return fetchPromise;
+  }
+
+  fetchPromise = api
+    .post("/query", {
+      query: `
+      query {
+        characters {
+          DBId
+          ID
+          Name
+          QualityID
+          RoleHeadIcon
+          Element {
+            ID
+            Name
+            Icon
+          }
+          WeaponType {
+            ID
+            Name
+            Icon
+          }
+        }
+      }
+    `,
+    })
+    .then((res) => {
+      const fetchedData: Character[] = res.data?.data?.characters || [];
+      localStorage.setItem(CACHE_KEY, JSON.stringify(fetchedData));
+      preloadImages(fetchedData);
+      return fetchedData;
+    })
+    .catch((err) => {
+      fetchPromise = null;
+      throw err;
+    });
+
+  return fetchPromise;
+}
 
 export function useCharacters() {
-  const [characters, setCharacters] = useState<Character[]>(() => {
-    const cachedData = localStorage.getItem(CACHE_KEY);
-    return cachedData ? JSON.parse(cachedData) : [];
-  });
-
-  const [isLoading, setIsLoading] = useState(!localStorage.getItem(CACHE_KEY));
-  const [error, setError] = useState<string | null>(null);
-
-  const preloadImages = (chars: Character[]) => {
-    chars.forEach((char) => {
-      const img = new Image();
-      img.src = char.roundIcon;
-    });
-  };
-
-  const fetchCharacters = useCallback(async () => {
-    try {
-      const res = await api.post("/query", {
-        query: `
-          query {
-            listCharacter {
-              id
-              name
-              roundIcon
-            }
-          }
-        `,
-      });
-
-      const fetchedData: Character[] = res.data.data.listCharacter;
-
-      const cachedString = localStorage.getItem(CACHE_KEY);
-      const newString = JSON.stringify(fetchedData);
-
-      if (cachedString !== newString) {
-        console.log("Data changed! Updating cache and UI...");
-        localStorage.setItem(CACHE_KEY, newString);
-        setCharacters(fetchedData);
-
-        preloadImages(fetchedData);
-      } else {
-        console.log("Data is up to date. Using cache.");
-      }
-    } catch (err: any) {
-      console.error("Failed to fetch characters:", err);
-      setError(err.message || "Something went wrong");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchCharacters();
-  }, [fetchCharacters]);
-
-  return { characters, isLoading, error, refetch: fetchCharacters };
+  return () => fetchCharacters();
 }

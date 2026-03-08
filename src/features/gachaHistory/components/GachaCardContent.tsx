@@ -1,38 +1,44 @@
-import type { GachaItem } from "../hooks/useGachaLog";
+import { use, useMemo } from "react";
 import { CardContent } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
 import { GachaTable } from "./GachaTable";
 import { GachaAvatarList } from "./GachaAvatarList";
+import type { GachaDataResult } from "../hooks/useGachaPromise";
 
 interface GachaCardContentProps {
-  isInitialLoading: boolean;
+  gachaPromise: Promise<GachaDataResult>;
+  selectedQualities: number[];
   isDetailed: boolean;
-  storageKey: string;
-  logs: GachaItem[];
 }
 
 export function GachaCardContent({
-  isInitialLoading,
+  gachaPromise,
+  selectedQualities,
   isDetailed,
-  storageKey,
-  logs,
 }: GachaCardContentProps) {
+  const { logs, storageKey, error } = use(gachaPromise);
+
+  if (error) {
+    return (
+      <CardContent className="p-4 pt-4 text-center text-red-500">
+        {error}
+      </CardContent>
+    );
+  }
+
+  const filteredLogs = useMemo(() => {
+    return [...logs]
+      .filter((item) => selectedQualities.includes(item.qualityLevel))
+      .reverse();
+  }, [logs, selectedQualities]);
   return (
-    <CardContent className="p-4 pt-4" key={storageKey}>
-      {isInitialLoading ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
-          <p className="text-sm text-zinc-500">Initializing database...</p>
-        </div>
-      ) : (
-        <div className="transition-all duration-300">
-          {isDetailed ? (
-            <GachaTable logs={logs} />
-          ) : (
-            <GachaAvatarList logs={logs} />
-          )}
-        </div>
-      )}
+    <CardContent key={storageKey}>
+      <div className="transition-all duration-300">
+        {isDetailed ? (
+          <GachaTable logs={filteredLogs} />
+        ) : (
+          <GachaAvatarList logs={filteredLogs} />
+        )}
+      </div>
     </CardContent>
   );
 }

@@ -1,42 +1,65 @@
 import { useMemo } from "react";
 
-interface GachaCacheItem {
-  id: string;
-  name: string;
-  roundIcon: string;
+interface CharacterCacheItem {
+  ID: number;
+  Name: string;
+  RoleHeadIcon: string;
+}
+
+interface WeaponCacheItem {
+  ID: number;
+  Name: string;
+  Icon: string;
 }
 
 interface AvatarWithCountProps {
+  resourceId?: number;
   name: string;
   count: number;
   size?: "sm" | "md" | "lg";
 }
 
 export function AvatarWithCount({
+  resourceId,
   name,
   count,
   size = "md",
 }: AvatarWithCountProps) {
   const imageSrc = useMemo(() => {
+    if (!resourceId && !name) return "";
+
     try {
       const charData = localStorage.getItem("wuwa_characters_cache");
       if (charData) {
-        const characters: GachaCacheItem[] = JSON.parse(charData);
-        const char = characters.find((c) => c.name === name);
-        if (char?.roundIcon) return char.roundIcon;
+        const characters: CharacterCacheItem[] = JSON.parse(charData);
+
+        let char = characters.find((c) => Number(c.ID) === Number(resourceId));
+
+        if (!char && name) {
+          char = characters.find((c) => c.Name === name);
+        }
+
+        if (char?.RoleHeadIcon) return char.RoleHeadIcon;
       }
 
       const weaponData = localStorage.getItem("wuwa_weapons_cache");
       if (weaponData) {
-        const weapons: GachaCacheItem[] = JSON.parse(weaponData);
-        const weapon = weapons.find((w) => w.name === name);
-        if (weapon?.roundIcon) return weapon.roundIcon;
+        const weapons: WeaponCacheItem[] = JSON.parse(weaponData);
+
+        let weapon = weapons.find((w) => Number(w.ID) === Number(resourceId));
+
+        if (!weapon && name) {
+          weapon = weapons.find((w) => w.Name === name);
+        }
+
+        if (weapon?.Icon) return weapon.Icon;
       }
     } catch (error) {
       console.error("Failed to parse gacha cache", error);
     }
+
     return "";
-  }, [name]);
+  }, [resourceId, name]);
 
   const badgeColorClass = useMemo(() => {
     if (count >= 70) return "bg-red-600";
@@ -44,11 +67,16 @@ export function AvatarWithCount({
     return "bg-emerald-600";
   }, [count]);
 
-  const sizeClasses = { sm: "w-10 h-10", md: "w-16 h-16", lg: "w-24 h-24" };
+  const sizeClasses = {
+    sm: "w-8 h-8 md:w-10 md:h-10",
+    md: "w-12 h-12 md:w-16 md:h-16",
+    lg: "w-16 h-16 md:w-24 md:h-24",
+  };
+
   const badgeSize = {
-    sm: "h-4 min-w-[16px] text-[10px]",
-    md: "h-7 min-w-[28px] text-sm",
-    lg: "h-9 min-w-[36px] text-base",
+    sm: "h-3 min-w-[12px] text-[8px] md:h-4 md:min-w-[16px] md:text-[10px]",
+    md: "h-5 min-w-[20px] text-[10px] md:h-7 md:min-w-[28px] md:text-sm",
+    lg: "h-7 min-w-[28px] text-sm md:h-9 md:min-w-[36px] md:text-base",
   };
 
   return (
@@ -61,11 +89,11 @@ export function AvatarWithCount({
         />
       ) : (
         <div className="w-full h-full rounded-full border border-zinc-700 bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-400 overflow-hidden">
-          {name.slice(0, 2).toUpperCase()}
+          {name ? name.slice(0, 2).toUpperCase() : "??"}
         </div>
       )}
       <div
-        className={`absolute -bottom-1 -right-1 flex items-center justify-center text-white font-bold rounded-full border-4 border-zinc-950 px-1 ${badgeColorClass} ${badgeSize[size]} shadow-lg transition-colors duration-300`}
+        className={`absolute -bottom-1 -right-1 flex items-center justify-center text-white font-bold rounded-full border-[3px] border-background px-1.5 ${badgeColorClass} ${badgeSize[size]} shadow-[0_2px_10px_rgba(0,0,0,0.5)] transition-colors duration-300`}
       >
         {count}
       </div>

@@ -1,15 +1,12 @@
-import { useState } from "react";
-import {useBannerStore} from "@/features/banner/store/useBannerStore"
+import { useUserStore } from "@/store/useUserStore";
 
 export const useBanner = () => {
-  const bannerIdFromStore = useBannerStore((state) => state.bannerId);
-  const setBannerId = useBannerStore((state) => state.setBannerId);
-  const [activeBanner, setActiveBanner] = useState<number>(bannerIdFromStore);
-
+  const bannerIdFromStore = useUserStore((state) => state.bannerId);
+  const setBannerId = useUserStore((state) => state.setBannerId);
 
   return {
+    activeBanner: bannerIdFromStore,
+    setActiveBanner: setBannerId,
     setBannerId,
-    activeBanner,
-    setActiveBanner
-  }
+  };
 };

@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useUserStore } from "@/store/useUserStore";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const data = {
   navMain: [
@@ -47,7 +48,7 @@ export function SettingSidebar({
                 {item.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <a href={item.url}>{item.title}</a>
+                      <Link to={item.url}>{item.title}</Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -58,7 +59,11 @@ export function SettingSidebar({
       </SidebarContent>
       <SidebarFooter>
         <div className="">
-          <Button variant="destructive" onClick={handleLogout}>
+          <Button
+            className="w-full"
+            variant="destructive"
+            onClick={handleLogout}
+          >
             Logout
           </Button>
         </div>

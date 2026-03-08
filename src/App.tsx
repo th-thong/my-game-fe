@@ -7,13 +7,13 @@ import { Toaster } from "@/components/ui/sonner";
 import { SettingsPage } from "@/pages/SettingPage";
 import { GoogleCallback } from "@/components/GoogleCallback";
 import { useUserStore } from "./store/useUserStore";
-import { useEffect } from "react";
+import { use } from "react";
+
+const initAuthPromise = useUserStore.getState().initAuth();
 
 function App() {
-  const initAuth = useUserStore((state) => state.initAuth);
-  useEffect(() => {
-    initAuth();
-  }, []);
+  use(initAuthPromise);
+
   return (
     <BrowserRouter>
       <Toaster position="bottom-right" richColors />

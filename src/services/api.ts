@@ -1,6 +1,7 @@
 import axios, { AxiosError } from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
 import { useUserStore } from "@/store/useUserStore";
+import config from "@/config";
 
 interface FailedRequest {
   resolve: (token: string) => void;
@@ -14,7 +15,7 @@ export const setAccessToken = (token: string | null) => {
 };
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000",
+  baseURL: config.apiUrl,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
@@ -55,8 +56,8 @@ api.interceptors.response.use(
 
     if (
       error.response?.status === 401 &&
-      !originalRequest.url?.includes("account/dj-rest-auth/login") &&
-      !originalRequest.url?.includes("/account/refresh/") &&
+      !originalRequest.url?.includes("account/login") &&
+      !originalRequest.url?.includes("account/refresh/") &&
       !originalRequest._retry
     ) {
       if (isRefreshing) {
@@ -74,7 +75,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const res = await api.post("/dj-rest-auth/token/refresh/");
+        const res = await api.post("/account/refresh/");
 
         if (res.status === 200) {
           const newToken = res.data.access;
