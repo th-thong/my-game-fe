@@ -12,7 +12,7 @@ export function ImportSource() {
   };
 
   return (
-    <div className="flex gap-4 p-4 bg-muted/20 rounded-lg border border-dashed">
+    <div className="flex flex-col sm:flex-row gap-4 p-4 bg-muted/20 rounded-lg border border-dashed">
       <input
         type="file"
         className="hidden"

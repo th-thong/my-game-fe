@@ -1,3 +1,4 @@
+import config from "@/config";
 import { useState } from "react";
 
 export function useOAuth() {
@@ -6,10 +7,10 @@ export function useOAuth() {
   const loginWithGoogle = () => {
     setIsLoading(true);
     const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
-    
+
     const options = {
-      redirect_uri: import.meta.env.VITE_GOOGLE_CALLBACK_URL as string,
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID as string,
+      redirect_uri: config.googleCallback,
+      client_id: config.googleClientId,
       access_type: "offline",
       response_type: "code",
       prompt: "consent",

@@ -1,33 +1,54 @@
-import { useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { use } from "react";
+import { useSearchParams, Navigate } from "react-router-dom";
 import api, { setAccessToken } from "@/services/api";
 import { useUserStore } from "@/store/useUserStore";
+import config from "@/config";
+
+const processedCodes = new Set<string>();
+
+const authPromiseCache = new Map<string, Promise<any>>();
+
+function getAuthPromise(code: string, fetchUserData: () => void): Promise<any> {
+  if (authPromiseCache.has(code)) {
+    return authPromiseCache.get(code)!;
+  }
+
+  const promise = api
+    .post(
+      "account/login/google/",
+      {
+        code,
+        redirect_uri: config.googleCallback,
+        client_id: config.googleClientId,
+      },
+      { timeout: 30000 },
+    )
+    .then((res) => {
+      setAccessToken(res.data.access);
+      fetchUserData();
+      return true;
+    })
+    .catch((err) => {
+      console.error("Error:", err.response?.data ?? err.message);
+      processedCodes.delete(code);
+      throw err;
+    });
+
+  authPromiseCache.set(code, promise);
+  return promise;
+}
 
 export function GoogleCallback() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const fetchUserData = useUserStore((state) => state.fetchUserData);
 
-  useEffect(() => {
-    const code = searchParams.get("code");
+  const code = searchParams.get("code");
 
-    if (code) {
-      api
-        .post("account/dj-rest-auth/google/", { code })
-        .then((res) => {
-          setAccessToken(res.data.access);
+  if (!code) {
+    return <Navigate to="/login" replace />;
+  }
 
-          fetchUserData();
+  use(getAuthPromise(code, fetchUserData));
 
-          navigate("/", { replace: true });
-        })
-        .catch((err) => {
-          console.error("Status:", err.response?.status);
-          console.error("Data:", err.response?.data);
-          console.error("Message:", err.message);
-        });
-    }
-  }, [searchParams]);
-
-  return <div>Verifying with Google...</div>;
+  return <Navigate to="/" replace />;
 }

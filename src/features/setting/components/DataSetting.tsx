@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { GameAccountData } from "./GameAccountData";
 import { ImportSource } from "@/features/setting/components/ImportSource";
-import { ManageAccountDialog } from "./ManageAccountDialog";
 import { ImportField } from "@/components/ImportField";
 
 export function DataSetting() {
@@ -22,12 +21,6 @@ export function DataSetting() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <Card className="border-none shadow-none bg-transparent">
         <CardContent className="px-0 space-y-6">
-          <div className="flex items-center gap-4 dark bg-background p-2 rounded-lg">
-            <ManageAccountDialog />
-          </div>
-
-          <Separator />
-
           <ImportField
             id="import-url-kuro"
             label="Import URL (Kuro)"

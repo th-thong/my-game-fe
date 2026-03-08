@@ -1,22 +1,19 @@
 import { BannerSelector } from "@/features/banner/components/BannerSelector";
 import { GachaHistoryDisplayCard } from "@/features/gachaHistory/components/DisplayCard";
-import { IngameStat } from "@/features/GameAccountStat/components/IngameStat";
-import { GachaStatistic } from "@/features/GameAccountStat/components/GachaStatistic";
-import { Separator } from "@/components/ui/separator";
-
+import { IngameStat } from "@/features/gameAccountStat/components/IngameStat";
 export function HomePage() {
   return (
-    <div className="grid grid-cols-[1fr_3fr_1fr] gap-0">
-      <div className="min-w-0 pl-2">
+    <div className="flex flex-col lg:grid lg:grid-cols-[1fr_minmax(0,4fr)_auto] gap-4 lg:gap-6 h-full p-2 lg:p-6 overflow-y-auto lg:overflow-hidden">
+      <div className="w-full lg:max-w-100 lg:h-full lg:overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <BannerSelector />
       </div>
-      <div className="min-w-0 w-full pr-5">
+
+      <div className="w-full lg:h-full lg:overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pr-5">
         <GachaHistoryDisplayCard />
       </div>
-      <div className="min-w-0 pr-5 gap-10">
-        <IngameStat/>
-        <Separator/>
-        <GachaStatistic />
+
+      <div className="w-full lg:min-w-[250px] lg:h-full lg:overflow-y-auto flex flex-col gap-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <IngameStat />
       </div>
     </div>
   );

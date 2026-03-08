@@ -1,4 +1,5 @@
-FROM node:20-alpine AS build-stage
+# Stage 1: Build stage
+FROM node:24.14.0-alpine AS build-stage
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
@@ -7,9 +8,21 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm run build
 
-
 FROM nginxinc/nginx-unprivileged:alpine
 
-COPY --from=build-stage --chown=nginx:nginx /app/dist /usr/share/nginx/html
+
+USER root
+
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+
 COPY default.conf.template /etc/nginx/templates/default.conf.template
-EXPOSE 8080
+
+COPY env.sh /docker-entrypoint.d/40-generate-env.sh
+RUN chmod +x /docker-entrypoint.d/40-generate-env.sh
+
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
+    chmod -R 755 /usr/share/nginx/html
+
+USER nginx
+
+EXPOSE 10000

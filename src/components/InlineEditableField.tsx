@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -76,10 +76,15 @@ interface ViewModeProps {
   value: string;
   onEdit: () => void;
   className?: string;
-  editText?:string;
+  editText?: string;
 }
 
-function ViewMode({ value, onEdit, className, editText="Edit" }: ViewModeProps) {
+function ViewMode({
+  value,
+  onEdit,
+  className,
+  editText = "Edit",
+}: ViewModeProps) {
   return (
     <>
       <div
@@ -122,10 +127,6 @@ function EditMode({
   const [tempValue, setTempValue] = useState(initialValue);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") onSave(tempValue);
     if (e.key === "Escape") onCancel();
@@ -135,6 +136,7 @@ function EditMode({
     <>
       <Input
         ref={inputRef}
+        autoFocus
         value={tempValue}
         onChange={(e) => setTempValue(e.target.value)}
         onKeyDown={handleKeyDown}
