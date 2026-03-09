@@ -12,62 +12,14 @@ export interface GachaItem {
   no: number;
 }
 
-import type { Character } from "@/hooks/useCharacters";
-import type { Weapon } from "@/hooks/useWeapons";
-
-const CACHE_KEY_CHARS = "wuwa_characters_cache";
-const CACHE_KEY_WEAPONS = "wuwa_weapons_cache";
-
 export interface GachaDataResult {
   logs: GachaItem[];
   storageKey: string;
   error: string | null;
 }
 
-async function fetchCharacters(): Promise<void> {
-  const cachedData = localStorage.getItem(CACHE_KEY_CHARS);
-
-  if (!cachedData) {
-    try {
-      const res = await api.post("/query", {
-        query: `
-          query {
-            characters {
-              DBId ID Name QualityID RoleHeadIcon
-              Element { ID Name Icon }
-              WeaponType { ID Name Icon }
-            }
-          }
-        `,
-      });
-      const fetchedData: Character[] = res.data?.data?.characters || [];
-      localStorage.setItem(CACHE_KEY_CHARS, JSON.stringify(fetchedData));
-    } catch (e) {
-      console.warn("Could not fetch characters on startup", e);
-    }
-  }
-}
-
-async function fetchWeapons(): Promise<void> {
-  const cachedData = localStorage.getItem(CACHE_KEY_WEAPONS);
-  if (!cachedData) {
-    try {
-      const res = await api.post("/query", {
-        query: `
-          query {
-            weapons {
-              DBId ID Name Icon Type QualityID TypeName TypeIcon
-            }
-          }
-        `,
-      });
-      const fetchedData: Weapon[] = res.data?.data?.weapons || [];
-      localStorage.setItem(CACHE_KEY_WEAPONS, JSON.stringify(fetchedData));
-    } catch (e) {
-      console.warn("Could not fetch weapons on startup", e);
-    }
-  }
-}
+import { fetchCharacters } from "@/hooks/useCharacters";
+import { fetchWeapons } from "@/hooks/useWeapons";
 
 async function fetchGachaLogs(
   bannerId: number,

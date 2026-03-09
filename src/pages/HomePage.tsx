@@ -8,7 +8,7 @@ export function HomePage() {
         <BannerSelector />
       </div>
 
-      <div className="w-full lg:h-full lg:overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pr-5">
+      <div className="w-full lg:h-full lg:overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:pr-5">
         <GachaHistoryDisplayCard />
       </div>
 

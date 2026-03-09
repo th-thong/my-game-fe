@@ -58,6 +58,7 @@ api.interceptors.response.use(
       error.response?.status === 401 &&
       !originalRequest.url?.includes("account/login") &&
       !originalRequest.url?.includes("account/refresh/") &&
+      !originalRequest.url?.includes("account/logout/") &&
       !originalRequest._retry
     ) {
       if (isRefreshing) {
