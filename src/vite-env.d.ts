@@ -5,7 +5,6 @@ interface Window {
     VITE_API_URL: string;
     VITE_GOOGLE_CALLBACK_URL: string;
     VITE_GOOGLE_CLIENT_ID: string;
-    VITE_INGAME_STAT_URL: string;
-
+    VITE_IMAGE_URL: string
   }
 }

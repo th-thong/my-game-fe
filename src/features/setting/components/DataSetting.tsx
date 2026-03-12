@@ -31,14 +31,13 @@ export function DataSetting() {
           />
 
           <Separator />
-
-          <GameAccountData />
-
-          <Separator />
-
-          <div className="space-y-4">
-            <Label>Import from other sources</Label>
+          <div className="flex flex-col gap-4 items-start min-w-[220px]">
+            <Label className="mb-2">Import</Label>
             <ImportSource />
+          </div>
+          <Separator />
+          <div className="flex-1">
+            <GameAccountData />
           </div>
         </CardContent>
       </Card>

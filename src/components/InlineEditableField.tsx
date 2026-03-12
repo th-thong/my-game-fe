@@ -12,6 +12,8 @@ interface InlineEditableFieldProps {
   className?: string;
   valueClassName?: string;
   placeholder?: string;
+  editIcon?: React.ReactNode;
+  extraActions?: React.ReactNode;
 }
 
 export function InlineEditableField({
@@ -21,6 +23,8 @@ export function InlineEditableField({
   className,
   valueClassName,
   placeholder,
+  editIcon,
+  extraActions,
 }: InlineEditableFieldProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -65,6 +69,8 @@ export function InlineEditableField({
             value={value}
             onEdit={() => setIsEditing(true)}
             className={valueClassName}
+            editIcon={editIcon}
+            extraActions={extraActions}
           />
         )}
       </div>
@@ -77,6 +83,8 @@ interface ViewModeProps {
   onEdit: () => void;
   className?: string;
   editText?: string;
+  editIcon?: React.ReactNode;
+  extraActions?: React.ReactNode;
 }
 
 function ViewMode({
@@ -84,6 +92,8 @@ function ViewMode({
   onEdit,
   className,
   editText = "Edit",
+  editIcon,
+  extraActions,
 }: ViewModeProps) {
   return (
     <>
@@ -96,13 +106,20 @@ function ViewMode({
       >
         {value || <span className="text-muted-foreground italic">Empty</span>}
       </div>
-      <Button
-        onClick={onEdit}
-        variant="outline"
-        className="h-10 px-4 rounded-full border-muted-foreground/20 shrink-0"
-      >
-        {editText}
-      </Button>
+      <div className="flex gap-2 shrink-0">
+        <Button
+          onClick={onEdit}
+          variant="outline"
+          size={editIcon ? "icon" : "default"}
+          className={cn(
+            "h-10 shrink-0 border-muted-foreground/20",
+            editIcon ? "" : "px-4 rounded-full",
+          )}
+        >
+          {editIcon || editText}
+        </Button>
+        {extraActions}
+      </div>
     </>
   );
 }

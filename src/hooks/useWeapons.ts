@@ -32,7 +32,7 @@ export function fetchWeapons(): Promise<Weapon[]> {
   }
 
   fetchPromise = api
-    .post("/query", {
+    .post("/data/query", {
       query: `
       query {
         weapons {
@@ -60,6 +60,11 @@ export function fetchWeapons(): Promise<Weapon[]> {
     });
 
   return fetchPromise;
+}
+
+export function clearWeaponsCache() {
+  localStorage.removeItem(WEAPON_CACHE_KEY);
+  fetchPromise = null;
 }
 
 export function useWeapons() {

@@ -21,33 +21,36 @@ export function GachaHistoryDisplayCard() {
     );
 
   return (
-    <Card className="border border-zinc-800 backdrop-blur-sm shadow-xl min-h-[500px]">
-      <GachaCardHeader
-        selectedQualities={selectedQualities}
-        onToggle={toggleQuality}
-        isDetailed={isDetailed}
-        onDetailedChange={setIsDetailed}
-        isUpdating={isUpdating}
-        disabled={isUpdating}
-        onUpdate={updateAllBanners}
-        gachaPromise={promise}
-        refreshKey={refreshKey}
-      />
-      <Suspense
-        fallback={
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
-            <p className="text-sm text-zinc-500">Loading gacha records...</p>
-          </div>
-        }
-      >
-        <GachaCardContent
-          key={`content-${refreshKey}`}
-          gachaPromise={promise}
+    <>
+      <Card className="border border-zinc-800 backdrop-blur-sm shadow-xl min-h-[500px]">
+        <GachaCardHeader
           selectedQualities={selectedQualities}
+          onToggle={toggleQuality}
           isDetailed={isDetailed}
+          onDetailedChange={setIsDetailed}
+          isUpdating={isUpdating}
+          disabled={isUpdating}
+          onUpdate={updateAllBanners}
+          gachaPromise={promise}
+          refreshKey={refreshKey}
+          bannerId={bannerId}
         />
-      </Suspense>
-    </Card>
+        <Suspense
+          fallback={
+            <div className="flex flex-col items-center justify-center py-20 gap-3">
+              <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+              <p className="text-sm text-zinc-500">Loading gacha records...</p>
+            </div>
+          }
+        >
+          <GachaCardContent
+            key={`content-${refreshKey}`}
+            gachaPromise={promise}
+            selectedQualities={selectedQualities}
+            isDetailed={isDetailed}
+          />
+        </Suspense>
+      </Card>
+    </>
   );
 }

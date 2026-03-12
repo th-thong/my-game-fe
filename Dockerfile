@@ -1,4 +1,3 @@
-# Stage 1: Build stage
 FROM node:24.14.0-alpine AS build-stage
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
@@ -25,4 +24,4 @@ RUN chown -R nginx:nginx /usr/share/nginx/html && \
 
 USER nginx
 
-EXPOSE 10000
+EXPOSE 5173

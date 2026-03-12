@@ -27,9 +27,12 @@ export function GachaCardContent({
 
   const filteredLogs = useMemo(() => {
     return [...logs]
-      .filter((item) => selectedQualities.includes(item.qualityLevel))
+      .filter((item) => {
+        if (!isDetailed && item.qualityLevel === 3) return false;
+        return selectedQualities.includes(item.qualityLevel);
+      })
       .reverse();
-  }, [logs, selectedQualities]);
+  }, [logs, selectedQualities, isDetailed]);
   return (
     <CardContent key={storageKey}>
       <div className="transition-all duration-300">

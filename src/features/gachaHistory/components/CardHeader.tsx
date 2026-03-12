@@ -12,12 +12,17 @@ import type { GachaDataResult } from "../hooks/useGachaPromise";
 interface FilterProps {
   selected: number[];
   onToggle: (quality: number) => void;
+  availableQualities: number[];
 }
 
-export function Filter({ selected, onToggle }: FilterProps) {
+export function Filter({
+  selected,
+  onToggle,
+  availableQualities,
+}: FilterProps) {
   return (
     <div className="flex flex-row items-center gap-2 overflow-x-auto max-w-full scrollbar-hide">
-      {[5, 4, 3].map((q) => (
+      {availableQualities.map((q) => (
         <div key={q} className="flex items-center gap-2 shrink-0">
           <Label>{q}</Label>
           <Checkbox
@@ -41,6 +46,7 @@ interface GachaCardHeaderProps {
   onUpdate: () => void;
   gachaPromise: Promise<GachaDataResult>;
   refreshKey: number;
+  bannerId: number;
 }
 
 interface GachaCardHeaderProps {
@@ -64,6 +70,7 @@ export function GachaCardHeader({
   onUpdate,
   gachaPromise,
   refreshKey,
+  bannerId,
 }: GachaCardHeaderProps) {
   return (
     <CardHeader>
@@ -82,13 +89,18 @@ export function GachaCardHeader({
             <GachaStatistic
               key={`stat-${refreshKey}`}
               gachaPromise={gachaPromise}
+              bannerId={bannerId}
             />
           </Suspense>
         </div>
 
         <div className="flex flex-row items-center justify-center xl:justify-end gap-2 w-full xl:w-auto overflow-x-auto scrollbar-hide pb-1">
           <div className="shrink-0">
-            <Filter selected={selectedQualities} onToggle={onToggle} />
+            <Filter
+              selected={selectedQualities}
+              onToggle={onToggle}
+              availableQualities={isDetailed ? [5, 4, 3] : [5, 4]}
+            />
           </div>
 
           <div className="flex items-center space-x-2 shrink-0">

@@ -43,7 +43,7 @@ export function fetchCharacters(): Promise<Character[]> {
   }
 
   fetchPromise = api
-    .post("/query", {
+    .post("/data/query", {
       query: `
       query {
         characters {
@@ -78,6 +78,11 @@ export function fetchCharacters(): Promise<Character[]> {
     });
 
   return fetchPromise;
+}
+
+export function clearCharactersCache() {
+  localStorage.removeItem(CACHE_KEY);
+  fetchPromise = null;
 }
 
 export function useCharacters() {

@@ -27,10 +27,11 @@ export function GameAccountCombobox({
   return (
     <Combobox
       value={selectedGameUid}
+      inputValue={selectedGameUid ?? ""}
       onValueChange={handleValueChange}
       items={gameAccountList}
     >
-      <ComboboxInput placeholder="Select Game Account" />
+      <ComboboxInput placeholder="Select Game Account" readOnly={true} />
       <ComboboxContent>
         <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>

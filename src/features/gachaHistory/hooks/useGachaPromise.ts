@@ -18,8 +18,9 @@ export interface GachaDataResult {
   error: string | null;
 }
 
-import { fetchCharacters } from "@/hooks/useCharacters";
-import { fetchWeapons } from "@/hooks/useWeapons";
+import { fetchCharacters, clearCharactersCache } from "@/hooks/useCharacters";
+import { fetchWeapons, clearWeaponsCache } from "@/hooks/useWeapons";
+import { useGachaStore } from "@/store/useGachaStore";
 
 async function fetchGachaLogs(
   bannerId: number,
@@ -30,15 +31,23 @@ async function fetchGachaLogs(
 
   await Promise.all([fetchCharacters(), fetchWeapons()]);
 
-  if (bannerId <= 0 || !gameUid) {
+  if (bannerId <= 0 || !gameUid || gameUid === "0") {
     return { logs: [], storageKey, error: null };
   }
 
+  const { bannerLogs, setBannerLogs } = useGachaStore.getState();
+
   if (!forceUpdate) {
+    if (bannerLogs[storageKey]) {
+      return { logs: bannerLogs[storageKey], storageKey, error: null };
+    }
+
     try {
       const raw = localStorage.getItem(storageKey);
       if (raw) {
-        return { logs: JSON.parse(raw), storageKey, error: null };
+        const parsed = JSON.parse(raw);
+        setBannerLogs(storageKey, parsed);
+        return { logs: parsed, storageKey, error: null };
       }
     } catch (e) {
       console.warn("Failed to parse local storage for gacha logs", e);
@@ -51,6 +60,7 @@ async function fetchGachaLogs(
     );
     const allFetched = res.data?.data || [];
     localStorage.setItem(storageKey, JSON.stringify(allFetched));
+    setBannerLogs(storageKey, allFetched);
 
     window.dispatchEvent(
       new CustomEvent("gacha-storage-updated", {
@@ -101,7 +111,12 @@ export function useGachaPromise(bannerId: number) {
 
     setIsUpdatingAll(true);
     try {
+      clearCharactersCache();
+      clearWeaponsCache();
+      useGachaStore.getState().clearBannerLogs();
+
       for (const id of ALL_BANNER_IDS) {
+        localStorage.removeItem(`gacha_log_${activeGameUid}_${id}`);
         await fetchGachaLogs(id, activeGameUid, true);
       }
 

@@ -14,7 +14,7 @@ export function GachaAvatarList({ logs }: { logs: GachaItem[] }) {
   if (logs.length === 0) return <EmptyState />;
 
   return (
-    <div className="flex flex-wrap justify-start gap-2 sm:gap-4">
+    <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
       {logs.map((item) => (
         <AvatarWithCount
           key={item.id}

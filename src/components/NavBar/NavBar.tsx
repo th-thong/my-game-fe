@@ -12,6 +12,7 @@ import { useState, createContext, useContext } from "react";
 import { GameAccountCombobox } from "@/components/GameAccountCombobox";
 import { useUserStore } from "@/store/useUserStore";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const SheetCloseContext = createContext<(() => void) | null>(null);
 
@@ -22,6 +23,7 @@ export function useSheetClose() {
 export function NavBar() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const logout = useUserStore((state) => state.logout);
+  const isLoggedIn = useUserStore((state) => state.isLoggedIn);
   const navigate = useNavigate();
 
   const handleComboboxChange = () => {
@@ -41,7 +43,7 @@ export function NavBar() {
   return (
     <SheetCloseContext.Provider value={closeSheet}>
       <nav className="flex justify-between items-center h-14 w-full px-4 md:px-6 md:grid md:grid-cols-3">
-        <div className="md:hidden flex items-center">
+        <div className="md:hidden flex items-center justify-between w-full">
           <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetTrigger asChild>
               <Button
@@ -70,21 +72,27 @@ export function NavBar() {
                 <div className="flex flex-col items-start w-full">
                   <Middle />
                 </div>
-                <div className="flex flex-col items-start w-full [&>div]:flex-col [&>div]:items-start [&>div]:justify-start [&>div]:gap-4 [&>div]:w-full">
-                  <Right hideCombobox />
+              </div>
+              {isLoggedIn && (
+                <div className="mt-auto pt-6 border-t border-zinc-800">
+                  <Button
+                    variant="destructive"
+                    onClick={handleLogout}
+                    className="w-full"
+                  >
+                    Logout
+                  </Button>
                 </div>
-              </div>
-              <div className="mt-auto pt-6 border-t border-zinc-800">
-                <Button
-                  variant="destructive"
-                  onClick={handleLogout}
-                  className="w-full"
-                >
-                  Logout
-                </Button>
-              </div>
+              )}
             </SheetContent>
           </Sheet>
+          <div className="flex justify-end items-center">
+            {!isLoggedIn && (
+              <Button size="sm" asChild>
+                <Link to="/login">Login</Link>
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="hidden md:flex col-start-2 justify-center">

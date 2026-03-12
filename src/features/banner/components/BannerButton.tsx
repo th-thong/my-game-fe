@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 
-
 type BadgeType = "event" | "starter" | "discount" | "none";
 
 interface BannerButtonProps {

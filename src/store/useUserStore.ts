@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import api, { setAccessToken } from "@/services/api";
+import { useGachaStore } from "@/store/useGachaStore";
 
 export interface GameAccount {
   id: string;
@@ -81,22 +82,33 @@ export const useUserStore = create<UserState>()(
 
       deleteGameAccount: async (uid: string) => {
         await api.delete(`/account/game-accounts/${uid}/`);
+
         set((state) => {
           const newList = state.gameAccountList.filter(
             (acc) => acc.uid !== uid,
           );
-          const newSelectedUid =
-            state.selectedGameUid === uid
-              ? newList.length > 0
-                ? newList[0].uid
-                : null
-              : state.selectedGameUid;
-
+          const newSelectedUid = newList.length === 0 ? null : newList[0].uid;
           return {
             gameAccountList: newList,
             selectedGameUid: newSelectedUid,
           };
         });
+
+        Object.keys(localStorage).forEach((key) => {
+          if (key.includes(uid)) {
+            localStorage.removeItem(key);
+          }
+        });
+
+        const gachaStore = useGachaStore.getState();
+        const newBannerLogs: Record<string, any> = {};
+        Object.entries(gachaStore.bannerLogs).forEach(([key, value]) => {
+          if (!key.includes(uid)) {
+            newBannerLogs[key] = value;
+          }
+        });
+        gachaStore.clearBannerLogs();
+        gachaStore.bannerLogs = newBannerLogs;
       },
 
       updateOauthCode: async (uid: string, newOauthCode: string) => {
@@ -150,6 +162,7 @@ export const useUserStore = create<UserState>()(
           console.error("Server logout failed:", error);
         } finally {
           setAccessToken(null);
+          localStorage.clear();
           set({
             gameAccountList: [],
             isLoggedIn: false,

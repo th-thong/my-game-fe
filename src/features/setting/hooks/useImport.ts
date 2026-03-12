@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useUserStore } from "@/store/useUserStore";
 import api from "@/services/api";
 import { toast } from "sonner";
 import { isAxiosError } from "axios";
@@ -17,7 +18,7 @@ export function useImport() {
   const [isLoading, setIsLoading] = useState(false);
 
   const importData = async (
-    source: "kuro" | "wuwatracker",
+    source: "kuro" | "wuwatracker" | "mywuwa",
     payload: string | File,
   ) => {
     setIsLoading(true);
@@ -35,6 +36,7 @@ export function useImport() {
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast.success(`Import successfully ${res.data.count} records!`);
+      await useUserStore.getState().fetchUserData();
     } catch (error: unknown) {
       toast.error(getErrorMessage(error, "Import failed"));
     } finally {

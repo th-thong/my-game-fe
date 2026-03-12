@@ -8,6 +8,8 @@ import { SettingsPage } from "@/pages/SettingPage";
 import { GoogleCallback } from "@/components/GoogleCallback";
 import { useUserStore } from "./store/useUserStore";
 import { use } from "react";
+import { TermsOfServicePage } from "@/pages/TermsOfServicePage";
+import { PrivacyPolicyPage } from "@/pages/PrivacyPolicyPage";
 
 const initAuthPromise = useUserStore.getState().initAuth();
 
@@ -21,6 +23,8 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         </Route>
 
         <Route element={<AuthLayout />}>

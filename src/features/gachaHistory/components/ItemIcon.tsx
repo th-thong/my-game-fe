@@ -1,3 +1,4 @@
+import config from "@/config";
 import { useMemo } from "react";
 
 interface CharacterCacheItem {
@@ -79,11 +80,14 @@ export function AvatarWithCount({
     lg: "h-7 min-w-[28px] text-sm md:h-9 md:min-w-[36px] md:text-base",
   };
 
+  const baseUrl = config.imageUrl;
+  const finalImageSrc = imageSrc ? baseUrl + imageSrc : "";
+
   return (
     <div className={`relative inline-block ${sizeClasses[size]} shrink-0`}>
       {imageSrc ? (
         <img
-          src={imageSrc}
+          src={finalImageSrc}
           alt={name}
           className="w-full h-full rounded-full object-fill border-none"
         />
