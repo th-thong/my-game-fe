@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useImport } from "@/features/setting/hooks/useImport";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { GameAccountData } from "./GameAccountData";
 import { ImportSource } from "@/features/setting/components/ImportSource";
@@ -32,7 +31,6 @@ export function DataSetting() {
 
           <Separator />
           <div className="flex flex-col gap-4 items-start min-w-[220px]">
-            <Label className="mb-2">Import</Label>
             <ImportSource />
           </div>
           <Separator />

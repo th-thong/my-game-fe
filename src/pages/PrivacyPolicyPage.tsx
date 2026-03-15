@@ -73,7 +73,7 @@ export function PrivacyPolicyPage() {
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-emerald-400 hover:text-emerald-300 underline"
+                    className="underline"
                     {...props}
                   />
                 ),

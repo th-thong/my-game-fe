@@ -14,7 +14,6 @@ export function GachaTable({ logs }: { logs: GachaItem[] }) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // 1. Lấy Timezone Offset (ví dụ: GMT+7)
   const timeZoneLabel = useMemo(() => {
     const offset = new Date().getTimezoneOffset();
     const absOffset = Math.abs(offset);
@@ -22,10 +21,9 @@ export function GachaTable({ logs }: { logs: GachaItem[] }) {
     return `GMT${offset <= 0 ? "+" : "-"}${hours}`;
   }, []);
 
-  // 2. Hàm format thời gian local
   const formatDateTime = (isoString: string) => {
     const date = new Date(isoString);
-    // Format theo kiểu Việt Nam: DD/MM/YYYY, HH:mm
+
     return new Intl.DateTimeFormat("vi-VN", {
       day: "2-digit",
       month: "2-digit",
@@ -48,10 +46,10 @@ export function GachaTable({ logs }: { logs: GachaItem[] }) {
 
   return (
     <div className="space-y-2 w-full overflow-hidden">
-      <div className="rounded-xl border border-zinc-800/50 bg-zinc-900/20 backdrop-blur-sm overflow-hidden">
+      <div className="rounded-xl   backdrop-blur-sm overflow-hidden">
         <Table className="table-fixed w-full">
-          <TableHeader className="bg-zinc-800/30">
-            <TableRow className="border-zinc-800 hover:bg-transparent">
+          <TableHeader>
+            <TableRow className="border border-none">
               <TableHead className="w-12 lg:w-16 text-center text-[10px] uppercase font-bold text-zinc-500">
                 No
               </TableHead>
@@ -61,7 +59,6 @@ export function GachaTable({ logs }: { logs: GachaItem[] }) {
               <TableHead className="w-12 lg:w-16 text-center text-[10px] uppercase font-bold text-zinc-500">
                 Pity
               </TableHead>
-              {/* Tăng độ rộng cột Time và thêm Timezone label */}
               <TableHead className="w-32 lg:w-44 text-right text-[10px] uppercase font-bold text-zinc-500">
                 Time ({timeZoneLabel})
               </TableHead>
@@ -71,7 +68,7 @@ export function GachaTable({ logs }: { logs: GachaItem[] }) {
             {paginatedLogs.map((item, idx) => (
               <TableRow
                 key={item.id}
-                className="group border-b border-zinc-800/30 last:border-0 h-10 lg:h-12 transition-colors hover:bg-zinc-800/40"
+                className="group h-10 lg:h-12 transition-colors border border-none"
               >
                 <TableCell className="text-center text-xs text-zinc-600 font-mono">
                   {logs.length - ((safePage - 1) * pageSize + idx)}
@@ -83,7 +80,7 @@ export function GachaTable({ logs }: { logs: GachaItem[] }) {
                         ? "text-yellow-400 font-bold"
                         : item.qualityLevel === 4
                           ? "text-purple-400 font-semibold"
-                          : "text-emerald-500/80"
+                          : "text-[#00d492] font-semibold"
                     }`}
                   >
                     {item.name}
@@ -94,7 +91,7 @@ export function GachaTable({ logs }: { logs: GachaItem[] }) {
                     {item.pity}
                   </span>
                 </TableCell>
-                <TableCell className="text-right py-1">
+                <TableCell className="text-right py-1 border border-none">
                   <span className="text-[10px] lg:text-xs text-zinc-500 font-mono block truncate">
                     {formatDateTime(item.time)}
                   </span>

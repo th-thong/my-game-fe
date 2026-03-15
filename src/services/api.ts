@@ -1,18 +1,6 @@
-import axios, { AxiosError } from "axios";
-import type { InternalAxiosRequestConfig } from "axios";
-import { useUserStore } from "@/store/useUserStore";
+import axios from "axios";
+import { auth } from "@/lib/firebase";
 import config from "@/config";
-
-interface FailedRequest {
-  resolve: (token: string) => void;
-  reject: (error: AxiosError) => void;
-}
-
-let accessToken: string | null = null;
-
-export const setAccessToken = (token: string | null) => {
-  accessToken = token;
-};
 
 const api = axios.create({
   baseURL: config.apiUrl,
@@ -23,83 +11,39 @@ const api = axios.create({
   timeout: 10000,
 });
 
-api.interceptors.request.use((config) => {
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
-  }
-  return config;
-});
+let isLoggingOut = false;
 
-let isRefreshing = false;
-let failedQueue: FailedRequest[] = [];
+api.interceptors.request.use(
+  async (axiosConfig) => {
+    const user = auth.currentUser;
 
-const processQueue = (
-  error: AxiosError | null,
-  token: string | null = null,
-) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else if (token) {
-      prom.resolve(token);
+    if (user) {
+      const token = await user.getIdToken();
+      axiosConfig.headers.Authorization = `Bearer ${token}`;
     }
-  });
-  failedQueue = [];
-};
+
+    return axiosConfig;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
 
 api.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
-      _retry?: boolean;
-    };
-
-    if (
-      error.response?.status === 401 &&
-      !originalRequest.url?.includes("account/login") &&
-      !originalRequest.url?.includes("account/refresh/") &&
-      !originalRequest.url?.includes("account/logout/") &&
-      !originalRequest._retry
-    ) {
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            return api(originalRequest);
-          })
-          .catch((err) => Promise.reject(err));
-      }
-
-      originalRequest._retry = true;
-      isRefreshing = true;
+  async (error) => {
+    if (error.response?.status === 401 && !isLoggingOut) {
+      isLoggingOut = true;
+      console.warn("Token expired or invalid");
 
       try {
-        const res = await api.post("/account/refresh/");
-
-        if (res.status === 200) {
-          const newToken = res.data.access;
-          setAccessToken(newToken);
-
-          processQueue(null, newToken);
-
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          return api(originalRequest);
-        }
-      } catch (refreshError) {
-        const axiosError = refreshError as AxiosError;
-        processQueue(axiosError, null);
-
-        const { logout } = useUserStore.getState();
-        logout();
-        window.location.href = "/login";
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
+        await auth.signOut();
+      } catch (signOutError) {
+        console.error("SignOut error:", signOutError);
       }
-    }
 
+      window.location.href = "/";
+    }
     return Promise.reject(error);
   },
 );

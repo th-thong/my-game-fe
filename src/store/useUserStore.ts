@@ -1,18 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import api, { setAccessToken } from "@/services/api";
-import { useGachaStore } from "@/store/useGachaStore";
+import api from "@/services/api";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged, signOut, type Unsubscribe } from "firebase/auth";
 
 export interface GameAccount {
   id: string;
   uid: string;
-  oauthCode: string | null;
-}
-
-interface ApiGameAccount {
-  id: string;
-  uid: string;
-  oauth_code: string | null;
 }
 
 interface UserState {
@@ -26,18 +20,13 @@ interface UserState {
   setBannerId: (bannerId: number) => void;
   setSelectedGameUid: (uid: string | null) => void;
   setHasHydrated: (state: boolean) => void;
-  setLoggedIn: (status: boolean) => void;
-  setGameAccountList: (list: GameAccount[]) => void;
 
-  initAuth: () => Promise<void>;
+  initAuth: () => Unsubscribe;
   fetchUserData: () => Promise<void>;
   logout: () => Promise<void>;
   addGameAccount: (uid: string) => Promise<void>;
   deleteGameAccount: (uid: string) => Promise<void>;
-  updateOauthCode: (uid: string, newOauthCode: string) => Promise<void>;
 }
-
-let isInitialAuthing = false;
 
 export const useUserStore = create<UserState>()(
   persist(
@@ -50,145 +39,94 @@ export const useUserStore = create<UserState>()(
       bannerId: 1,
 
       setBannerId: (bannerId) => set({ bannerId }),
-      setSelectedGameUid: (uid) => {
-        set({ selectedGameUid: uid });
-      },
-
+      setSelectedGameUid: (uid) => set({ selectedGameUid: uid }),
       setHasHydrated: (state) => set({ _hasHydrated: state }),
-      setLoggedIn: (status) => set({ isLoggedIn: status }),
-      setGameAccountList: (list) => set({ gameAccountList: list }),
 
-      addGameAccount: async (uid: string) => {
-        const res = await api.post("/account/game-accounts/", { uid });
-
-        const newAccount: GameAccount = {
-          id: res.data.id,
-          uid: res.data.uid,
-          oauthCode: res.data.oauth_code || null,
-        };
-
-        set((state) => {
-          const newList = [...state.gameAccountList, newAccount];
-          const newSelectedUid = state.selectedGameUid
-            ? state.selectedGameUid
-            : newAccount.uid;
-
-          return {
-            gameAccountList: newList,
-            selectedGameUid: newSelectedUid,
-          };
-        });
-      },
-
-      deleteGameAccount: async (uid: string) => {
-        await api.delete(`/account/game-accounts/${uid}/`);
-
-        set((state) => {
-          const newList = state.gameAccountList.filter(
-            (acc) => acc.uid !== uid,
-          );
-          const newSelectedUid = newList.length === 0 ? null : newList[0].uid;
-          return {
-            gameAccountList: newList,
-            selectedGameUid: newSelectedUid,
-          };
-        });
-
-        Object.keys(localStorage).forEach((key) => {
-          if (key.includes(uid)) {
-            localStorage.removeItem(key);
+      initAuth: () => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            await get().fetchUserData();
+            set({ isLoggedIn: true, isLoading: false });
+          } else {
+            set({
+              isLoggedIn: false,
+              isLoading: false,
+              gameAccountList: [],
+              selectedGameUid: null,
+            });
           }
         });
-
-        const gachaStore = useGachaStore.getState();
-        const newBannerLogs: Record<string, any> = {};
-        Object.entries(gachaStore.bannerLogs).forEach(([key, value]) => {
-          if (!key.includes(uid)) {
-            newBannerLogs[key] = value;
-          }
-        });
-        gachaStore.clearBannerLogs();
-        gachaStore.bannerLogs = newBannerLogs;
-      },
-
-      updateOauthCode: async (uid: string, newOauthCode: string) => {
-        await api.post("/account/game-accounts/", {
-          uid: uid,
-          oauth_code: newOauthCode,
-        });
-
-        set((state) => ({
-          gameAccountList: state.gameAccountList.map((acc) =>
-            acc.uid === uid ? { ...acc, oauthCode: newOauthCode } : acc,
-          ),
-        }));
+        return unsubscribe;
       },
 
       fetchUserData: async () => {
         try {
-          const gameRes = await api.get("/account/game-accounts/");
+          const gameRes = await api.get("account/game-accounts/");
+          const accounts: GameAccount[] = gameRes.data.map((item: any) => ({
+            id: item.id,
+            uid: item.uid,
+          }));
 
-          const accounts: GameAccount[] = gameRes.data.map(
-            (item: ApiGameAccount) => ({
-              id: item.id,
-              uid: item.uid,
-              oauthCode: item.oauth_code || null,
-            }),
+          let currentSelectedUid = get().selectedGameUid;
+          const isCurrentValid = accounts.some(
+            (acc) => acc.uid === currentSelectedUid,
           );
 
-          const currentState = get();
-          let currentSelectedUid = currentState.selectedGameUid;
-
-          if (!currentSelectedUid && accounts.length > 0) {
+          if (!isCurrentValid && accounts.length > 0) {
             currentSelectedUid = accounts[0].uid;
+          } else if (accounts.length === 0) {
+            currentSelectedUid = null;
           }
 
           set({
             gameAccountList: accounts,
-            isLoggedIn: true,
-            isLoading: false,
             selectedGameUid: currentSelectedUid,
           });
         } catch (error) {
-          console.error("Error fetching user data:", error);
-          set({ isLoggedIn: false, isLoading: false });
+          console.error("Error when fetch user data", error);
         }
       },
 
       logout: async () => {
+        set({ isLoading: true });
         try {
-          await api.post("/account/logout/", {}, { withCredentials: true });
-        } catch (error) {
-          console.error("Server logout failed:", error);
-        } finally {
-          setAccessToken(null);
-          localStorage.clear();
+          await signOut(auth);
           set({
             gameAccountList: [],
             isLoggedIn: false,
             selectedGameUid: null,
           });
+        } catch (error) {
+          console.error("Logout error", error);
+          throw error;
+        } finally {
+          set({ isLoading: false });
         }
       },
 
-      initAuth: async () => {
-        if (isInitialAuthing) return;
-        isInitialAuthing = true;
-        set({ isLoading: true });
+      addGameAccount: async (uid: string) => {
+        const res = await api.post("account/game-accounts/", { uid });
+        const newAccount: GameAccount = {
+          id: res.data.id,
+          uid: res.data.uid,
+        };
+        set((state) => ({
+          gameAccountList: [...state.gameAccountList, newAccount],
+          selectedGameUid: state.selectedGameUid || newAccount.uid,
+        }));
+      },
 
-        try {
-          const res = await api.post(
-            "/account/refresh/",
-            {},
-            { withCredentials: true },
+      deleteGameAccount: async (uid: string) => {
+        await api.delete(`account/game-accounts/${uid}/`);
+        set((state) => {
+          const newList = state.gameAccountList.filter(
+            (acc) => acc.uid !== uid,
           );
-          setAccessToken(res.data.access);
-          await get().fetchUserData();
-        } catch {
-          set({ isLoggedIn: false, isLoading: false });
-        } finally {
-          isInitialAuthing = false;
-        }
+          return {
+            gameAccountList: newList,
+            selectedGameUid: newList.length === 0 ? null : newList[0].uid,
+          };
+        });
       },
     }),
     {
@@ -197,9 +135,9 @@ export const useUserStore = create<UserState>()(
         state?.setHasHydrated?.(true);
       },
       partialize: (state) => ({
-        gameAccountList: state.gameAccountList,
         selectedGameUid: state.selectedGameUid,
         bannerId: state.bannerId,
+        gameAccountList: state.gameAccountList,
       }),
     },
   ),

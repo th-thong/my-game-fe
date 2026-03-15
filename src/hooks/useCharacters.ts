@@ -1,28 +1,8 @@
 import api from "@/services/api";
+import { useCharacterStore } from "@/store/useCharacterStore";
+import { useState, useTransition } from "react";
+import type { Character } from "@/store/useCharacterStore";
 
-export interface Element {
-  ID: number;
-  Icon: string;
-  Name: string;
-}
-
-export interface WeaponType {
-  ID: number;
-  Name: string;
-  Icon: string;
-}
-
-export interface Character {
-  DBId: string;
-  ID: number;
-  Name: string;
-  QualityID: number;
-  Element: Element;
-  RoleHeadIcon: string;
-  WeaponType: WeaponType;
-}
-
-const CACHE_KEY = "wuwa_characters_cache";
 let fetchPromise: Promise<Character[]> | null = null;
 
 const preloadImages = (chars: Character[]) => {
@@ -32,15 +12,16 @@ const preloadImages = (chars: Character[]) => {
   });
 };
 
-export function fetchCharacters(): Promise<Character[]> {
-  if (fetchPromise) return fetchPromise;
+export function fetchCharactersAction(
+  forceUpdate = false,
+): Promise<Character[]> {
+  const { characters, setCharacters } = useCharacterStore.getState();
 
-  const cachedData = localStorage.getItem(CACHE_KEY);
-  if (cachedData) {
-    const parsed = JSON.parse(cachedData);
-    fetchPromise = Promise.resolve(parsed);
-    return fetchPromise;
+  if (!forceUpdate && characters.length > 0) {
+    return Promise.resolve(characters);
   }
+
+  if (fetchPromise) return fetchPromise;
 
   fetchPromise = api
     .post("/data/query", {
@@ -48,43 +29,49 @@ export function fetchCharacters(): Promise<Character[]> {
       query {
         characters {
           DBId
-          ID
+          Id
           Name
           QualityID
           RoleHeadIcon
-          Element {
-            ID
-            Name
-            Icon
-          }
-          WeaponType {
-            ID
-            Name
-            Icon
-          }
+          Element { Id Name Icon }
+          WeaponType { Id Name Icon }
+          BannerImg
         }
       }
     `,
     })
     .then((res) => {
       const fetchedData: Character[] = res.data?.data?.characters || [];
-      localStorage.setItem(CACHE_KEY, JSON.stringify(fetchedData));
+
+      setCharacters(fetchedData);
       preloadImages(fetchedData);
+
       return fetchedData;
     })
-    .catch((err) => {
+    .finally(() => {
       fetchPromise = null;
-      throw err;
     });
 
   return fetchPromise;
 }
 
 export function clearCharactersCache() {
-  localStorage.removeItem(CACHE_KEY);
-  fetchPromise = null;
+  useCharacterStore.getState().clearCharacters();
 }
 
-export function useCharacters() {
-  return () => fetchCharacters();
+export function useCharactersPromise() {
+  const [promise, setPromise] = useState(() => fetchCharactersAction());
+  const [isPending, startTransition] = useTransition();
+
+  const refetch = () => {
+    startTransition(() => {
+      setPromise(fetchCharactersAction(true));
+    });
+  };
+
+  return {
+    charactersPromise: promise,
+    refetch,
+    isUpdating: isPending,
+  };
 }

@@ -1,4 +1,3 @@
-import { Label } from "@/components/ui/label";
 import { useUserStore, type GameAccount } from "@/store/useUserStore";
 import { useGameAccount } from "@/features/setting/hooks/useGameAccount";
 import { useState, useEffect } from "react";
@@ -137,7 +136,7 @@ export function GameAccountRow({ account }: { account: GameAccount }) {
 
       <div className="flex items-center justify-between gap-4">
         <div className="space-y-0.5">
-          <Label className="text-sm font-medium">Export Data</Label>
+          <div className="text-sm font-medium">Export Data</div>
           <p className="text-xs text-muted-foreground">
             Download your convene records as JSON.
           </p>
@@ -147,9 +146,9 @@ export function GameAccountRow({ account }: { account: GameAccount }) {
 
       <div className="flex items-center justify-between mt-2 pt-4 border-t border-destructive/20 gap-4">
         <div className="space-y-0.5">
-          <Label className="text-sm font-medium text-destructive">
+          <div className="text-sm font-medium text-destructive">
             Danger Zone
-          </Label>
+          </div>
           <p className="text-xs text-muted-foreground">
             Permanently delete this account and all its data.
           </p>
@@ -171,9 +170,9 @@ export function GameAccountData() {
   return (
     <div className="space-y-4 w-full">
       <div className="flex justify-between gap-2 mb-4">
-        <Label className="text-sm font-semibold flex items-center">
+        <div className="text-sm font-semibold flex items-center">
           Game Accounts
-        </Label>
+        </div>
         <GameAccountCombobox />
       </div>
 

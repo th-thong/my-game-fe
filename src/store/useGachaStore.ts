@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { GachaItem } from "@/features/gachaHistory/hooks/useGachaPromise";
+import { persist } from "zustand/middleware";
 
 interface GachaStore {
   bannerLogs: Record<string, GachaItem[]>;
@@ -7,9 +8,16 @@ interface GachaStore {
   clearBannerLogs: () => void;
 }
 
-export const useGachaStore = create<GachaStore>((set) => ({
-  bannerLogs: {},
-  setBannerLogs: (key, logs) =>
-    set((state) => ({ bannerLogs: { ...state.bannerLogs, [key]: logs } })),
-  clearBannerLogs: () => set({ bannerLogs: {} }),
-}));
+export const useGachaStore = create<GachaStore>()(
+  persist(
+    (set) => ({
+      bannerLogs: {},
+      setBannerLogs: (key, logs) =>
+        set((state) => ({ bannerLogs: { ...state.bannerLogs, [key]: logs } })),
+      clearBannerLogs: () => set({ bannerLogs: {} }),
+    }),
+    {
+      name: "wuwa-gacha-logs",
+    },
+  ),
+);

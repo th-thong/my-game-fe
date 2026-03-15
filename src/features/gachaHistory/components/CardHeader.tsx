@@ -21,15 +21,16 @@ export function Filter({
   availableQualities,
 }: FilterProps) {
   return (
-    <div className="flex flex-row items-center gap-2 overflow-x-auto max-w-full scrollbar-hide">
+    <div className="flex flex-row items-center gap-2 max-w-full scrollbar-hide">
       {availableQualities.map((q) => (
         <div key={q} className="flex items-center gap-2 shrink-0">
-          <Label>{q}</Label>
           <Checkbox
+            id={`quality-${q}`}
             className="h-4 w-4"
             checked={selected.includes(q)}
             onCheckedChange={() => onToggle(q)}
           />
+          <Label htmlFor={`quality-${q}`}>{q}</Label>
         </div>
       ))}
     </div>
@@ -47,17 +48,6 @@ interface GachaCardHeaderProps {
   gachaPromise: Promise<GachaDataResult>;
   refreshKey: number;
   bannerId: number;
-}
-
-interface GachaCardHeaderProps {
-  selectedQualities: number[];
-  onToggle: (q: number) => void;
-  isDetailed: boolean;
-  onDetailedChange: (v: boolean) => void;
-  isUpdating: boolean;
-  disabled: boolean;
-  onUpdate: () => void;
-  gachaPromise: Promise<GachaDataResult>;
 }
 
 export function GachaCardHeader({
@@ -78,7 +68,7 @@ export function GachaCardHeader({
         <div className="w-full xl:w-auto max-w-full overflow-x-auto scrollbar-hide flex justify-center xl:justify-start xl:text-left">
           <Suspense
             fallback={
-              <div className="h-[42px] px-4 py-2 rounded-lg border border-zinc-800/50 inline-flex items-center justify-center shrink-0">
+              <div className="h-[42px] px-4 py-2 rounded-lg border border-zinc-800 inline-flex items-center justify-center shrink-0">
                 <Loader2 className="w-4 h-4 animate-spin text-zinc-500" />
                 <span className="ml-2 text-xs text-zinc-500">
                   Loading stats...

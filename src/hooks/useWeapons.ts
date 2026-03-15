@@ -1,17 +1,8 @@
 import api from "@/services/api";
+import { useState, useTransition } from "react";
 
-export interface Weapon {
-  DBId: string;
-  ID: number;
-  Name: string;
-  Icon: string;
-  Type: number;
-  QualityID: number;
-  TypeName: string;
-  TypeIcon: string;
-}
+import { useWeaponStore, type Weapon } from "@/store/useWeaponStore";
 
-const WEAPON_CACHE_KEY = "wuwa_weapons_cache";
 let fetchPromise: Promise<Weapon[]> | null = null;
 
 const preloadImages = (items: Weapon[]) => {
@@ -21,15 +12,14 @@ const preloadImages = (items: Weapon[]) => {
   });
 };
 
-export function fetchWeapons(): Promise<Weapon[]> {
-  if (fetchPromise) return fetchPromise;
+export function fetchWeaponsAction(forceUpdate = false): Promise<Weapon[]> {
+  const { weapons, setWeapons } = useWeaponStore.getState();
 
-  const cachedData = localStorage.getItem(WEAPON_CACHE_KEY);
-  if (cachedData) {
-    const parsed = JSON.parse(cachedData);
-    fetchPromise = Promise.resolve(parsed);
-    return fetchPromise;
+  if (!forceUpdate && weapons.length > 0) {
+    return Promise.resolve(weapons);
   }
+
+  if (fetchPromise) return fetchPromise;
 
   fetchPromise = api
     .post("/data/query", {
@@ -37,7 +27,7 @@ export function fetchWeapons(): Promise<Weapon[]> {
       query {
         weapons {
           DBId
-          ID
+          Id
           Name
           Icon
           Type
@@ -50,23 +40,36 @@ export function fetchWeapons(): Promise<Weapon[]> {
     })
     .then((res) => {
       const fetchedData: Weapon[] = res.data?.data?.weapons || [];
-      localStorage.setItem(WEAPON_CACHE_KEY, JSON.stringify(fetchedData));
+
+      setWeapons(fetchedData);
       preloadImages(fetchedData);
+
       return fetchedData;
     })
-    .catch((err) => {
+    .finally(() => {
       fetchPromise = null;
-      throw err;
     });
 
   return fetchPromise;
 }
 
 export function clearWeaponsCache() {
-  localStorage.removeItem(WEAPON_CACHE_KEY);
-  fetchPromise = null;
+  useWeaponStore.getState().clearWeapons();
 }
 
-export function useWeapons() {
-  return () => fetchWeapons();
+export function useWeaponsPromise() {
+  const [promise, setPromise] = useState(() => fetchWeaponsAction());
+  const [isPending, startTransition] = useTransition();
+
+  const refetch = () => {
+    startTransition(() => {
+      setPromise(fetchWeaponsAction(true));
+    });
+  };
+
+  return {
+    weaponsPromise: promise,
+    refetch,
+    isUpdating: isPending,
+  };
 }

@@ -1,70 +1,29 @@
 import config from "@/config";
-import { useMemo } from "react";
-
-interface CharacterCacheItem {
-  ID: number;
-  Name: string;
-  RoleHeadIcon: string;
-}
-
-interface WeaponCacheItem {
-  ID: number;
-  Name: string;
-  Icon: string;
-}
+import { useMemo, memo } from "react";
+import { useGachaResourceImage } from "../hooks/useGachaResourceCache";
 
 interface AvatarWithCountProps {
   resourceId?: number;
   name: string;
   count: number;
   size?: "sm" | "md" | "lg";
+  iconSrc?: string;
 }
 
-export function AvatarWithCount({
+function AvatarWithCountComponent({
   resourceId,
   name,
   count,
   size = "md",
+  iconSrc,
 }: AvatarWithCountProps) {
-  const imageSrc = useMemo(() => {
-    if (!resourceId && !name) return "";
+  const cachedImageSrc = useGachaResourceImage(resourceId, name);
 
-    try {
-      const charData = localStorage.getItem("wuwa_characters_cache");
-      if (charData) {
-        const characters: CharacterCacheItem[] = JSON.parse(charData);
-
-        let char = characters.find((c) => Number(c.ID) === Number(resourceId));
-
-        if (!char && name) {
-          char = characters.find((c) => c.Name === name);
-        }
-
-        if (char?.RoleHeadIcon) return char.RoleHeadIcon;
-      }
-
-      const weaponData = localStorage.getItem("wuwa_weapons_cache");
-      if (weaponData) {
-        const weapons: WeaponCacheItem[] = JSON.parse(weaponData);
-
-        let weapon = weapons.find((w) => Number(w.ID) === Number(resourceId));
-
-        if (!weapon && name) {
-          weapon = weapons.find((w) => w.Name === name);
-        }
-
-        if (weapon?.Icon) return weapon.Icon;
-      }
-    } catch (error) {
-      console.error("Failed to parse gacha cache", error);
-    }
-
-    return "";
-  }, [resourceId, name]);
+  const activeImageSrc = iconSrc || cachedImageSrc;
 
   const badgeColorClass = useMemo(() => {
     if (count >= 70) return "bg-red-600";
-    if (count >= 50) return "bg-amber-500";
+    if (count >= 50) return "bg-[#f77f00]";
     return "bg-emerald-600";
   }, [count]);
 
@@ -75,32 +34,36 @@ export function AvatarWithCount({
   };
 
   const badgeSize = {
-    sm: "h-3 min-w-[12px] text-[8px] md:h-4 md:min-w-[16px] md:text-[10px]",
-    md: "h-5 min-w-[20px] text-[10px] md:h-7 md:min-w-[28px] md:text-sm",
-    lg: "h-7 min-w-[28px] text-sm md:h-9 md:min-w-[36px] md:text-base",
+    sm: "h-3 w-3 text-[8px] md:h-4 md:w-4 md:text-[10px]",
+    md: "h-5 w-5 text-[10px] md:h-7 md:w-7 md:text-sm",
+    lg: "h-7 w-7 text-sm md:h-9 md:w-9 md:text-base",
   };
 
   const baseUrl = config.imageUrl;
-  const finalImageSrc = imageSrc ? baseUrl + imageSrc : "";
+
+  const finalImageSrc = activeImageSrc ? baseUrl + activeImageSrc : "";
 
   return (
     <div className={`relative inline-block ${sizeClasses[size]} shrink-0`}>
-      {imageSrc ? (
+      {activeImageSrc ? (
         <img
           src={finalImageSrc}
           alt={name}
+          decoding="async"
           className="w-full h-full rounded-full object-fill border-none"
         />
       ) : (
-        <div className="w-full h-full rounded-full border border-zinc-700 bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-400 overflow-hidden">
+        <div className="w-full h-full rounded-full border border-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-400 overflow-hidden bg-zinc-900">
           {name ? name.slice(0, 2).toUpperCase() : "??"}
         </div>
       )}
       <div
-        className={`absolute -bottom-1 -right-1 flex items-center justify-center text-white font-bold rounded-full border-[3px] border-background px-1.5 ${badgeColorClass} ${badgeSize[size]} shadow-[0_2px_10px_rgba(0,0,0,0.5)] transition-colors duration-300`}
+        className={`absolute -bottom-1 -right-1 flex items-center justify-center text-white font-bold leading-none rounded-full border-2 border-zinc-950 ${badgeColorClass} ${badgeSize[size]} shadow-[0_2px_10px_rgba(0,0,0,0.5)] transition-colors duration-300`}
       >
         {count}
       </div>
     </div>
   );
 }
+
+export const AvatarWithCount = memo(AvatarWithCountComponent);

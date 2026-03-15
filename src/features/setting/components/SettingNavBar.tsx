@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const data = {
-  navMain: [{ title: "Game Data", url: "/settings?category=game-data" }],
+  navMain: [
+    { title: "Game Data", url: "/settings?category=game-data" },
+  ],
 };
 
 interface SettingNavBarProps {
@@ -49,7 +51,7 @@ export function SettingNavBar({ currentCategory }: SettingNavBarProps) {
           <Button
             size="sm"
             variant="ghost"
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive h-7 px-3"
+            className="text-destructive bg-destructive/10 h-7 px-3 hover:bg-destructive"
             onClick={handleLogout}
           >
             Logout

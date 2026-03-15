@@ -35,7 +35,7 @@ export function GachaCardContent({
   }, [logs, selectedQualities, isDetailed]);
   return (
     <CardContent key={storageKey}>
-      <div className="transition-all duration-300">
+      <div className="transition-all duration-100">
         {isDetailed ? (
           <GachaTable logs={filteredLogs} />
         ) : (

@@ -32,7 +32,6 @@ export function GachaPagination({
 }: PaginationProps) {
   return (
     <div className="flex flex-col gap-3 px-2 py-4 border-t border-zinc-800/50">
-      {/* Hàng 1: Tổng số và Page Size */}
       <div className="flex items-center justify-between">
         <div className="text-[11px] text-zinc-500 font-medium">
           Total{" "}
@@ -62,7 +61,6 @@ export function GachaPagination({
         </div>
       </div>
 
-      {/* Hàng 2: Bộ điều hướng chính */}
       <div className="flex items-center justify-between bg-zinc-800/20 p-1 rounded-lg border border-zinc-800/40">
         <div className="flex items-center gap-1">
           <Button
