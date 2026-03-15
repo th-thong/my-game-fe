@@ -1,31 +1,39 @@
 import { useSearchParams } from "react-router-dom";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 
-import { AccountSetting } from "@/features/setting/components/AccountSetting";
 import { DataSetting } from "@/features/setting/components/DataSetting";
-import { SettingSidebar } from "@/features/setting/components/SettingSidebar";
-
+import { SettingNavBar } from "@/features/setting/components/SettingNavBar";
+import { useUserStore } from "@/store/useUserStore";
 
 const SETTING_COMPONENTS: Record<string, React.ReactNode> = {
   "game-data": <DataSetting />,
-  "account": <AccountSetting />,
 };
 
 export function SettingsPage() {
   const [searchParams] = useSearchParams();
-  const category = searchParams.get("category") || "account";
+  const category = searchParams.get("category") || "game-data";
+  const logout = useUserStore((state) => state.logout);
+  const isLoggedIn = useUserStore((state) => state.isLoggedIn);
 
   return (
-    <SidebarProvider>
-      <div className="flex w-full h-full">
-        <SettingSidebar />
-        <SidebarInset className="flex-1 p-3 pt-0">
-          <div>
-            <h1 className="text-2xl font-bold mb-4">Settings</h1>
-            {SETTING_COMPONENTS[category] || <AccountSetting />}
+    <div className="flex w-full h-full justify-center overflow-auto p-4 md:p-6 lg:p-10 hide-scrollbar">
+      <div className="width-full max-w-4xl mx-auto w-full flex flex-col pt-8">
+        <h1 className="text-4xl font-bold mb-2 tracking-tight">Settings</h1>
+
+        <SettingNavBar currentCategory={category} />
+
+        <div className="mt-8">
+          {SETTING_COMPONENTS[category] || <DataSetting />}
+        </div>
+
+        {isLoggedIn && (
+          <div className="mt-12 sm:hidden pb-8">
+            <Button variant="destructive" className="w-full" onClick={logout}>
+              Logout
+            </Button>
           </div>
-        </SidebarInset>
+        )}
       </div>
-    </SidebarProvider>
+    </div>
   );
 }

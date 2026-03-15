@@ -5,9 +5,7 @@ import { Outlet } from "react-router-dom";
 
 export function AuthLayout() {
   return (
-
-    <div className="dark relative flex min-h-screen w-full items-center justify-center bg-background p-4">
-      
+    <div className="relative flex min-h-screen w-full items-center justify-center bg-background p-4">
       <Button
         variant="secondary"
         size="icon"
@@ -21,9 +19,8 @@ export function AuthLayout() {
       </Button>
 
       <main className="w-full max-w-100">
-          <Outlet /> 
+        <Outlet />
       </main>
-
     </div>
   );
 }

@@ -1,22 +1,17 @@
 import { BannerSelector } from "@/features/banner/components/BannerSelector";
 import { GachaHistoryDisplayCard } from "@/features/gachaHistory/components/DisplayCard";
-import { IngameStat } from "@/features/GameAccountStat/components/IngameStat";
-import { GachaStatistic } from "@/features/GameAccountStat/components/GachaStatistic";
-import { Separator } from "@/components/ui/separator";
 
 export function HomePage() {
   return (
-    <div className="grid grid-cols-[1fr_3fr_1fr] gap-0">
-      <div className="min-w-0 pl-2">
-        <BannerSelector />
+    <div className="max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-[260px_1fr] gap-2 lg:gap-2 px-2 sm:px-3 md:px-4 lg:px-6 pt-6">
+      <div className="w-full">
+        <div className="lg:pr-1 lg:sticky lg:top-6 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto overflow-x-auto lg:overflow-x-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <BannerSelector />
+        </div>
       </div>
-      <div className="min-w-0 w-full pr-5">
+
+      <div className="w-full">
         <GachaHistoryDisplayCard />
-      </div>
-      <div className="min-w-0 pr-5 gap-10">
-        <IngameStat/>
-        <Separator/>
-        <GachaStatistic />
       </div>
     </div>
   );

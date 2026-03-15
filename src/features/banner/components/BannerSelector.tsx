@@ -1,43 +1,71 @@
+import { useCallback } from "react";
 import { BannerButton } from "@/features/banner/components/BannerButton";
-import characterBanner from "@/assets/banner/character.webp";
-import weaponBanner from "@/assets/banner/weapon.webp";
-import standardCharacterBanner from "@/assets/banner/standard_character.webp";
-import standardWeaponBanner from "@/assets/banner/standard_weapon.webp";
-import newbieBanner from "@/assets/banner/newbie.webp";
-import choicebBanner from "@/assets/banner/choice.webp";
-import giveBanner from "@/assets/banner/give.webp";
 import { useBanner } from "@/features/banner/hooks/useBanner";
 
+import CharLimited from "@/assets/banner/CharLimited.webp";
+import WeapLimited from "@/assets/banner/WeapLimited.webp";
+
+import CharStandard from "@/assets/banner/CharStandard.webp";
+import WeapStandard from "@/assets/banner/WeapStandard.webp";
+
+import Beginner from "@/assets/banner/Beginner.webp";
+import BeginnerChoice from "@/assets/banner/BeginnerChoice.webp";
+
+import Give from "@/assets/banner/GiveChar.webp";
+
+import Char30Day from "@/assets/banner/Char30Day.webp";
+import Weap30Day from "@/assets/banner/Weap30Day.webp";
+
+type BadgeType = "event" | "starter" | "discount" | "none";
+
+interface BannerItem {
+  id: number;
+  src: string;
+  badgeType: BadgeType;
+  badgeText?: string;
+}
+
+interface BannerItem {
+  id: number;
+  src: string;
+  badgeType: BadgeType;
+  badgeText?: string;
+}
+
+const BANNERS: BannerItem[] = [
+  { id: 1, src: CharLimited, badgeType: "event", badgeText: "EVENT" },
+  { id: 2, src: WeapLimited, badgeType: "event", badgeText: "EVENT" },
+  { id: 3, src: CharStandard, badgeType: "none" },
+  { id: 4, src: WeapStandard, badgeType: "none" },
+  { id: 5, src: Beginner, badgeType: "discount", badgeText: "20% OFF" },
+  { id: 6, src: BeginnerChoice, badgeType: "discount", badgeText: "CHOICE" },
+  { id: 7, src: Give, badgeType: "discount", badgeText: "GIVE" },
+  { id: 8, src: Char30Day, badgeType: "starter", badgeText: "STARTER" },
+  { id: 9, src: Weap30Day, badgeType: "starter", badgeText: "STARTER" },
+];
+
 export function BannerSelector() {
-  const { setBannerId, activeBanner, setActiveBanner } = useBanner();
+  const { bannerId, setBannerId } = useBanner();
 
-  const banners = [
-    { id: 0, src: characterBanner },
-    { id: 1, src: weaponBanner },
-    { id: 2, src: standardCharacterBanner },
-    { id: 3, src: standardWeaponBanner },
-    { id: 4, src: newbieBanner },
-    { id: 5, src: choicebBanner },
-    { id: 6, src: giveBanner },
-  ];
-
-  const handleBannerClick = (id: number) => {
-    setActiveBanner(id);
-    setBannerId(id);
-  };
+  const handleBannerClick = useCallback(
+    (id: number) => {
+      setBannerId(id);
+    },
+    [setBannerId],
+  );
 
   return (
-    <div className="flex flex-col pl-4 gap-2 pt-2">
-      {banners.map((banner) => (
-        <div key={banner.id} className="w-40 h-auto">
-          <div
-            onClick={() => handleBannerClick(banner.id)}
-            className={`w-full h-full cursor-pointer ${
-              activeBanner === banner.id ? "scale-115" : "scale-100"
-            }`}
-          >
-            <BannerButton imageSrc={banner.src} />
-          </div>
+    <div className="flex flex-row overflow-x-auto lg:flex-col lg:h-full pl-2 lg:pl-4 gap-2 lg:gap-0 lg:pb-0 scrollbar-hide will-change-transform">
+      {BANNERS.map((banner) => (
+        <div key={banner.id} className="w-32 lg:w-40 shrink-0 aspect-[2/1]">
+          <BannerButton
+            id={banner.id}
+            imageSrc={banner.src}
+            badgeType={banner.badgeType}
+            badgeText={banner.badgeText}
+            isActive={bannerId === banner.id}
+            onClick={handleBannerClick}
+          />
         </div>
       ))}
     </div>

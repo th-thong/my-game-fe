@@ -1,27 +1,54 @@
 import { useState } from "react";
+import { auth, googleProvider } from "@/lib/firebase";
+import { signInWithPopup } from "firebase/auth";
+import { toast } from "sonner";
+import config from "@/config";
+import { useUserStore } from "@/store/useUserStore";
 
-export function useOAuth() {
+export const useOAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { fetchUserData } = useUserStore();
 
-  const loginWithGoogle = () => {
+  const loginWithGoogle = async () => {
     setIsLoading(true);
-    const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
-    
-    const options = {
-      redirect_uri: import.meta.env.VITE_GOOGLE_CALLBACK_URL as string,
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID as string,
-      access_type: "offline",
-      response_type: "code",
-      prompt: "consent",
-      scope: [
-        "https://www.googleapis.com/auth/userinfo.profile",
-        "https://www.googleapis.com/auth/userinfo.email",
-      ].join(" "),
-    };
+    setError(null);
 
-    const qs = new URLSearchParams(options).toString();
-    window.location.href = `${rootUrl}?${qs}`;
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+
+      const idToken = await result.user.getIdToken();
+
+      const response = await fetch(`${config.apiUrl}account/firebase-login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id_token: idToken }),
+      });
+
+      if (!response.ok) {
+        let errorMessage = "Login error";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch {}
+        throw new Error(errorMessage);
+      }
+
+      await auth.currentUser?.getIdToken(true);
+      await fetchUserData();
+
+      window.location.href = "/";
+    } catch (err: any) {
+      const errorMessage = err.message || "Login failed";
+      console.error("Firebase Auth Error:", err);
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  return { loginWithGoogle, isLoading };
+  return { loginWithGoogle, isLoading, error };
 }

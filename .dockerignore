@@ -3,4 +3,4 @@ npm-debug.log
 dist
 build
 .git
-.env
+env-config.js

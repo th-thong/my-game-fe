@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
 import { useOAuth } from "@/features/auth/hooks/useOAuth";
 import { Field, FieldGroup } from "@/components/ui/field";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 
@@ -16,16 +18,20 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const { loginWithGoogle, isLoading } = useOAuth();
+  const { loginWithGoogle, isLoading, error } = useOAuth();
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>
-            Login with your Google account
-          </CardDescription>
+          <CardDescription>Login with your Google account</CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           <form>

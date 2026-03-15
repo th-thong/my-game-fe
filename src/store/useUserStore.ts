@@ -1,114 +1,132 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import api, { setAccessToken } from "@/services/api";
-import { isAxiosError } from "axios";
+import api from "@/services/api";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged, signOut, type Unsubscribe } from "firebase/auth";
 
-interface UserState {
-  email: string;
+export interface GameAccount {
   id: string;
-  userName: string;
-  isLoggedIn: boolean;
-  isLoading: boolean;
-  gameUIDList: string[];
-  _hasHydrated: boolean;
-  setHasHydrated: (state: boolean) => void;
-  setUser: (userData: {
-    email: string;
-    id: string;
-    userName: string;
-    gameUIDList?: string[];
-  }) => void;
-  logout: () => void;
-  setGameUidList: (gameUIDList: string[]) => void;
-  setLoggedIn: (status: boolean) => void;
-  initAuth: () => Promise<void>; // ← thêm
+  uid: string;
 }
 
-let isInitialAuthing = false;
+interface UserState {
+  isLoggedIn: boolean;
+  isLoading: boolean;
+  gameAccountList: GameAccount[];
+  _hasHydrated: boolean;
+  selectedGameUid: string | null;
+  bannerId: number;
+
+  setBannerId: (bannerId: number) => void;
+  setSelectedGameUid: (uid: string | null) => void;
+  setHasHydrated: (state: boolean) => void;
+
+  initAuth: () => Unsubscribe;
+  fetchUserData: () => Promise<void>;
+  logout: () => Promise<void>;
+  addGameAccount: (uid: string) => Promise<void>;
+  deleteGameAccount: (uid: string) => Promise<void>;
+}
 
 export const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
-      email: "",
-      id: "",
-      userName: "",
-      gameUIDList: [],
+      gameAccountList: [],
       isLoggedIn: false,
       isLoading: true,
+      _hasHydrated: false,
+      selectedGameUid: null,
+      bannerId: 1,
 
-      setUser: ({ email, id, userName, gameUIDList = [] }) =>
-        set({
-          email,
-          id,
-          userName,
-          gameUIDList,
-          isLoggedIn: true,
-          isLoading: false,
-        }),
+      setBannerId: (bannerId) => set({ bannerId }),
+      setSelectedGameUid: (uid) => set({ selectedGameUid: uid }),
+      setHasHydrated: (state) => set({ _hasHydrated: state }),
 
-      setLoggedIn: (status) => set({ isLoggedIn: status }),
+      initAuth: () => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            await get().fetchUserData();
+            set({ isLoggedIn: true, isLoading: false });
+          } else {
+            set({
+              isLoggedIn: false,
+              isLoading: false,
+              gameAccountList: [],
+              selectedGameUid: null,
+            });
+          }
+        });
+        return unsubscribe;
+      },
 
-      setGameUidList: (gameUIDList) => set({ gameUIDList }),
-
-      logout: async () => {
+      fetchUserData: async () => {
         try {
-          await api.post(
-            "/dj-rest-auth/logout/",
-            {},
-            { withCredentials: true },
+          const gameRes = await api.get("account/game-accounts/");
+          const accounts: GameAccount[] = gameRes.data.map((item: any) => ({
+            id: item.id,
+            uid: item.uid,
+          }));
+
+          let currentSelectedUid = get().selectedGameUid;
+          const isCurrentValid = accounts.some(
+            (acc) => acc.uid === currentSelectedUid,
           );
-        } catch (error) {
-          console.error("Server logout failed:", error);
-        } finally {
-          setAccessToken(null);
+
+          if (!isCurrentValid && accounts.length > 0) {
+            currentSelectedUid = accounts[0].uid;
+          } else if (accounts.length === 0) {
+            currentSelectedUid = null;
+          }
 
           set({
-            email: "",
-            id: "",
-            userName: "",
-            gameUIDList: [],
-            isLoggedIn: false,
+            gameAccountList: accounts,
+            selectedGameUid: currentSelectedUid,
           });
+        } catch (error) {
+          console.error("Error when fetch user data", error);
         }
       },
 
-      _hasHydrated: false,
-      setHasHydrated: (state) => set({ _hasHydrated: state }),
-
-      initAuth: async () => {
-        if (isInitialAuthing) return;
-
-        isInitialAuthing = true;
+      logout: async () => {
         set({ isLoading: true });
-
         try {
-          const res = await api.post(
-            "/refresh/",
-            {},
-            { withCredentials: true },
-          );
-          setAccessToken(res.data.access);
-
-          const userRes = await api.get("/dj-rest-auth/user/");
+          await signOut(auth);
           set({
-            email: userRes.data.email,
-            id: userRes.data.pk,
-            userName: userRes.data.username,
-            isLoggedIn: true,
+            gameAccountList: [],
+            isLoggedIn: false,
+            selectedGameUid: null,
           });
-        } catch (error: unknown) {
-          if (isAxiosError(error)) {
-            console.error("Auth init failed (API):", error.response?.data);
-          } else {
-            console.error("Auth init failed (Internal):", error);
-          }
-
-          set({ isLoggedIn: false });
-          await get().logout();
+        } catch (error) {
+          console.error("Logout error", error);
+          throw error;
         } finally {
           set({ isLoading: false });
-          isInitialAuthing = false;
         }
+      },
+
+      addGameAccount: async (uid: string) => {
+        const res = await api.post("account/game-accounts/", { uid });
+        const newAccount: GameAccount = {
+          id: res.data.id,
+          uid: res.data.uid,
+        };
+        set((state) => ({
+          gameAccountList: [...state.gameAccountList, newAccount],
+          selectedGameUid: state.selectedGameUid || newAccount.uid,
+        }));
+      },
+
+      deleteGameAccount: async (uid: string) => {
+        await api.delete(`account/game-accounts/${uid}/`);
+        set((state) => {
+          const newList = state.gameAccountList.filter(
+            (acc) => acc.uid !== uid,
+          );
+          return {
+            gameAccountList: newList,
+            selectedGameUid: newList.length === 0 ? null : newList[0].uid,
+          };
+        });
       },
     }),
     {
@@ -117,9 +135,9 @@ export const useUserStore = create<UserState>()(
         state?.setHasHydrated?.(true);
       },
       partialize: (state) => ({
-        email: state.email,
-        userName: state.userName,
-        gameUIDList: state.gameUIDList,
+        selectedGameUid: state.selectedGameUid,
+        bannerId: state.bannerId,
+        gameAccountList: state.gameAccountList,
       }),
     },
   ),

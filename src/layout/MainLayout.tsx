@@ -1,15 +1,15 @@
 import { Outlet } from "react-router-dom";
-import { NavBar } from "@/components/NavBar/NavBar";
+import { NavBar } from "@/components/NavBar";
+import { Footer } from "@/components/Footer";
 
 export function MainLayout() {
   return (
-    <div className="dark flex flex-col h-screen w-full bg-background text-foreground  overflow-hidden">
+    <div className="flex flex-col min-h-screen w-full bg-background text-foreground">
       <NavBar />
-
-      <main className="flex-1 w-full overflow-y-auto">
-          <Outlet /> 
+      <main className="flex-1 w-full">
+        <Outlet />
       </main>
-
+      <Footer />
     </div>
   );
 }
