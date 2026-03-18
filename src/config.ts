@@ -7,6 +7,7 @@ const config = {
   firebaseStorageBucket: window._env_.VITE_STORAGE_BUCKET || "",
   firebaseMsgId: window._env_?.VITE_MSG_SENDER_ID || "",
   firebaseAppId: window._env_.VITE_APP_ID || "",
+  gameVersion: window._env_.VITE_GAME_VERSION || "1.0-1st"
 };
 
 export default config;

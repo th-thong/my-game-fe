@@ -12,5 +12,6 @@ interface Window {
     VITE_STORAGE_BUCKET: string;
     VITE_MSG_SENDER_ID: string;
     VITE_APP_ID: string;
+    VITE_GAME_VERSION: string;
   };
 }
