@@ -33,22 +33,22 @@ export async function fetchGachaLogs(
 ): Promise<GachaDataResult> {
   const storageKey = `gacha_log_${gameUid}_${bannerId}`;
 
-  await Promise.all([
-    fetchCharactersAction(forceUpdate),
-    fetchWeaponsAction(forceUpdate),
-  ]);
-
-  if (bannerId <= 0 || !gameUid || gameUid === "0") {
-    return { logs: [], storageKey, error: null };
-  }
-
-  const { bannerLogs, setBannerLogs } = useGachaStore.getState();
-
-  if (!forceUpdate && bannerLogs[storageKey]) {
-    return { logs: bannerLogs[storageKey], storageKey, error: null };
-  }
-
   try {
+    await Promise.all([
+      fetchCharactersAction(forceUpdate),
+      fetchWeaponsAction(forceUpdate),
+    ]);
+
+    if (bannerId <= 0 || !gameUid || gameUid === "0") {
+      return { logs: [], storageKey, error: null };
+    }
+
+    const { bannerLogs, setBannerLogs } = useGachaStore.getState();
+
+    if (!forceUpdate && bannerLogs[storageKey]) {
+      return { logs: bannerLogs[storageKey], storageKey, error: null };
+    }
+
     const res = await api.get(
       `/convene/get-data/${gameUid}?cardPoolType=${bannerId}`,
     );
@@ -106,9 +106,11 @@ export function useGachaPromise(bannerId: number) {
 
       useGachaStore.getState().clearBannerLogs();
 
-      for (const id of ALL_BANNER_IDS) {
-        await fetchGachaLogs(id, activeGameUid, true);
-      }
+      await Promise.all(
+        ALL_BANNER_IDS.map((id) =>
+          fetchGachaLogs(id, activeGameUid, true),
+        ),
+      );
 
       startTransition(() => {
         setPromise(fetchGachaLogs(bannerId, activeGameUid, false));

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import api from "@/services/api";
+import config from "@/config";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut, type Unsubscribe } from "firebase/auth";
 
@@ -12,6 +13,8 @@ export interface GameAccount {
 interface UserState {
   isLoggedIn: boolean;
   isLoading: boolean;
+  userId: string | null;
+  userEmail: string | null;
   gameAccountList: GameAccount[];
   _hasHydrated: boolean;
   selectedGameUid: string | null;
@@ -21,7 +24,8 @@ interface UserState {
   setSelectedGameUid: (uid: string | null) => void;
   setHasHydrated: (state: boolean) => void;
 
-  initAuth: () => Unsubscribe;
+  initAuth: () => Unsubscribe | (() => void);
+  noAuthLogin: (email: string, name?: string) => Promise<void>;
   fetchUserData: () => Promise<void>;
   logout: () => Promise<void>;
   addGameAccount: (uid: string) => Promise<void>;
@@ -34,6 +38,8 @@ export const useUserStore = create<UserState>()(
       gameAccountList: [],
       isLoggedIn: false,
       isLoading: true,
+      userId: null,
+      userEmail: null,
       _hasHydrated: false,
       selectedGameUid: null,
       bannerId: 1,
@@ -42,7 +48,46 @@ export const useUserStore = create<UserState>()(
       setSelectedGameUid: (uid) => set({ selectedGameUid: uid }),
       setHasHydrated: (state) => set({ _hasHydrated: state }),
 
+      noAuthLogin: async (email: string, name?: string) => {
+        set({ isLoading: true });
+        try {
+          const res = await fetch(`${config.apiUrl}account/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, name: name || email.split("@")[0], picture: "" }),
+          });
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.error || "Login failed");
+          }
+          const data = await res.json();
+          const pk = data.user?.pk;
+          if (!pk) throw new Error("No user ID returned");
+
+          localStorage.setItem("noauth_user_id", pk);
+          localStorage.setItem("noauth_user_email", email);
+          set({ userId: pk, userEmail: email, isLoggedIn: true, isLoading: false });
+
+          await get().fetchUserData();
+        } catch (err) {
+          set({ isLoading: false });
+          throw err;
+        }
+      },
+
       initAuth: () => {
+        if (!config.authMode || !auth) {
+          const storedId = localStorage.getItem("noauth_user_id");
+          const storedEmail = localStorage.getItem("noauth_user_email");
+          if (storedId) {
+            set({ userId: storedId, userEmail: storedEmail, isLoggedIn: true });
+            get().fetchUserData().finally(() => set({ isLoading: false }));
+          } else {
+            set({ isLoading: false });
+          }
+          return () => {};
+        }
+
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
           if (user) {
             await get().fetchUserData();
@@ -62,8 +107,8 @@ export const useUserStore = create<UserState>()(
       fetchUserData: async () => {
         try {
           const gameRes = await api.get("account/game-accounts/");
-          const accounts: GameAccount[] = gameRes.data.map((item: any) => ({
-            id: item.id,
+          const accounts: GameAccount[] = gameRes.data.map((item: { user_id?: string; pk?: string; uid: string }) => ({
+            id: item.user_id || item.pk || "",
             uid: item.uid,
           }));
 
@@ -90,11 +135,17 @@ export const useUserStore = create<UserState>()(
       logout: async () => {
         set({ isLoading: true });
         try {
-          await signOut(auth);
+          if (config.authMode && auth) {
+            await signOut(auth);
+          }
+          localStorage.removeItem("noauth_user_id");
+          localStorage.removeItem("noauth_user_email");
           set({
             gameAccountList: [],
             isLoggedIn: false,
             selectedGameUid: null,
+            userId: null,
+            userEmail: null,
           });
         } catch (error) {
           console.error("Logout error", error);
@@ -107,7 +158,7 @@ export const useUserStore = create<UserState>()(
       addGameAccount: async (uid: string) => {
         const res = await api.post("account/game-accounts/", { uid });
         const newAccount: GameAccount = {
-          id: res.data.id,
+          id: res.data.user_id || res.data.id || "",
           uid: res.data.uid,
         };
         set((state) => ({
@@ -138,6 +189,9 @@ export const useUserStore = create<UserState>()(
         selectedGameUid: state.selectedGameUid,
         bannerId: state.bannerId,
         gameAccountList: state.gameAccountList,
+        isLoggedIn: state.isLoggedIn,
+        userId: state.userId,
+        userEmail: state.userEmail,
       }),
     },
   ),

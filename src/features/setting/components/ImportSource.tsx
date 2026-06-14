@@ -1,5 +1,6 @@
 import { useImport } from "@/features/setting/hooks/useImport";
 import { useRef, useState } from "react";
+import { cn } from "@/lib/utils";
 import {
   Combobox,
   ComboboxInput,
@@ -83,13 +84,14 @@ export function ImportSource() {
 
       <div
         onClick={() => fileInputRef.current?.click()}
-        className={`flex flex-col items-center justify-center gap-2 p-4 rounded-lg border border-dashed bg-muted/10 transition-all cursor-pointer hover:bg-muted/50 ${
-          dragActive ? "border-primary bg-muted/10" : "border-border"
-        } ${isLoading ? "opacity-50 pointer-events-none" : ""}`}
+        className={cn(
+          "flex flex-col items-center justify-center gap-2 p-4 rounded-lg border border-dashed bg-muted/10 transition-all cursor-pointer hover:bg-muted/50 min-h-20",
+          dragActive ? "border-primary bg-muted/10" : "border-border",
+          isLoading && "opacity-50 pointer-events-none",
+        )}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        style={{ minHeight: 80 }}
       >
         <input
           id={`import-${activeSource}-file`}

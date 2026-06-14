@@ -13,7 +13,7 @@ export function AuthLayout() {
         asChild
       >
         <Link to="/">
-          <X className="h-5 w-5" />
+          <X className="size-5" />
           <span className="sr-only">Back to Home</span>
         </Link>
       </Button>

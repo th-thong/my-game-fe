@@ -65,19 +65,19 @@ export function GachaPagination({
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
-            className="h-8 w-8 p-0 hover:bg-zinc-800"
+            className="size-8 p-0 hover:bg-zinc-800"
             onClick={() => onPageChange(1)}
             disabled={currentPage === 1}
           >
-            <ChevronsLeft className="h-4 w-4" />
+            <ChevronsLeft data-icon="inline-start" />
           </Button>
           <Button
             variant="ghost"
-            className="h-8 w-8 p-0 hover:bg-zinc-800"
+            className="size-8 p-0 hover:bg-zinc-800"
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft data-icon="inline-start" />
           </Button>
         </div>
 
@@ -90,19 +90,19 @@ export function GachaPagination({
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
-            className="h-8 w-8 p-0 hover:bg-zinc-800"
+            className="size-8 p-0 hover:bg-zinc-800"
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages || totalPages === 0}
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight data-icon="inline-start" />
           </Button>
           <Button
             variant="ghost"
-            className="h-8 w-8 p-0 hover:bg-zinc-800"
+            className="size-8 p-0 hover:bg-zinc-800"
             onClick={() => onPageChange(totalPages)}
             disabled={currentPage === totalPages || totalPages === 0}
           >
-            <ChevronsRight className="h-4 w-4" />
+            <ChevronsRight data-icon="inline-start" />
           </Button>
         </div>
       </div>

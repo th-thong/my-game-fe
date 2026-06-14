@@ -67,11 +67,11 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
               isActive
-                ? "bg-zinc-800 text-zinc-100"
-                : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50",
+                ? "bg-accent text-accent-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
             )}
           >
-            <Icon className={href === "/" ? "w-6 h-6 flex-shrink-0" : "w-4 h-4 flex-shrink-0"} />
+            <Icon className={href === "/" ? "size-6 flex-shrink-0" : "size-4 flex-shrink-0"} />
             {name}
           </Link>
         );
@@ -98,11 +98,11 @@ function DesktopNavLinks() {
               className={cn(
                 "flex items-center gap-2 px-4 py-4 text-sm font-medium transition-colors border-b-2",
                 isActive
-                  ? "border-b-zinc-100 text-zinc-100"
-                  : "border-b-transparent text-zinc-400 hover:text-zinc-200",
+                  ? "border-b-foreground text-foreground"
+                  : "border-b-transparent text-muted-foreground hover:text-foreground",
               )}
             >
-              <Icon className={href === "/" ? "w-6 h-6 flex-shrink-0" : "w-4 h-4 flex-shrink-0"} />
+              <Icon className={href === "/" ? "size-6 flex-shrink-0" : "size-4 flex-shrink-0"} />
               <span>{name}</span>
             </Link>
           </NavigationMenuItem>
@@ -119,7 +119,7 @@ function NavActions({ hideCombobox }: { hideCombobox?: boolean }) {
     <div className="flex justify-end gap-4 items-center">
       {!hideCombobox && <GameAccountCombobox />}
       {isLoading ? (
-        <div className="w-16 h-8 bg-zinc-800 animate-pulse rounded-md" />
+        <div className="w-16 h-8 bg-muted animate-pulse rounded-md" />
       ) : !isLoggedIn ? (
         <Button size="sm" asChild className="hidden md:flex">
           <Link to="/login">Login</Link>
@@ -143,41 +143,41 @@ export function NavBar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-md">
       <div className="flex h-14 items-center px-4 md:px-6 md:max-w-7xl md:mx-auto md:w-full">
         {/* MOBILE LAYOUT */}
         <div className="flex md:hidden items-center justify-between w-full">
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
-              <button className="flex items-center justify-center w-9 h-9 rounded-md text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors">
-                <Menu className="w-5 h-5" />
+              <button className="flex items-center justify-center size-9 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+                <Menu className="size-5" />
               </button>
             </SheetTrigger>
 
             <SheetContent
               side="left"
-              className="w-[75vw] max-w-[280px] bg-zinc-950 border-zinc-800/60 p-0 flex flex-col"
+              className="w-[75vw] max-w-[280px] bg-card border-border/60 p-0 flex flex-col"
             >
-              <SheetHeader className="px-4 py-4 border-b border-zinc-800/60 text-left">
-                <SheetTitle className="text-sm font-semibold text-zinc-100 tracking-tight">
+              <SheetHeader className="px-4 py-4 border-b border-border/60 text-left">
+                <SheetTitle className="text-sm font-semibold text-foreground tracking-tight">
                   Menu
                 </SheetTitle>
               </SheetHeader>
 
               <div className="flex-1 overflow-y-auto px-3 py-4">
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-600 mb-2 px-2">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2 px-2">
                   Navigation
                 </p>
                 <MobileMenu onClose={() => setIsMobileMenuOpen(false)} />
               </div>
 
               {isLoggedIn && (
-                <div className="px-3 pb-6 pt-3 border-t border-zinc-800/60 flex-shrink-0">
+                <div className="px-3 pb-6 pt-3 border-t border-border/60 flex-shrink-0">
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2 w-full px-3 py-2.5 rounded-md text-sm text-red-400 hover:text-red-300 hover:bg-zinc-900 transition-colors"
+                    className="flex items-center gap-2 w-full px-3 py-2.5 rounded-md text-sm text-destructive hover:text-destructive/80 hover:bg-accent transition-colors"
                   >
-                    <LogOut className="w-4 h-4 flex-shrink-0" />
+                    <LogOut className="flex-shrink-0" data-icon="inline-start" />
                     Sign out
                   </button>
                 </div>
@@ -187,11 +187,11 @@ export function NavBar() {
 
           {/* User & Login Actions (Mobile) */}
           <div className="flex items-center gap-1">
-            <button
-              onClick={() => setAccountDialogOpen(true)}
-              className="flex items-center justify-center w-9 h-9 rounded-md text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
-            >
-              <User className="w-5 h-5" />
+              <button
+                onClick={() => setAccountDialogOpen(true)}
+                className="flex items-center justify-center size-9 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              >
+              <User className="size-5" />
             </button>
             {!isLoggedIn && (
               <Button size="sm" asChild>
@@ -217,7 +217,7 @@ export function NavBar() {
 
       {/* Mobile Dialog */}
       <Dialog open={accountDialogOpen} onOpenChange={setAccountDialogOpen}>
-        <DialogContent className="bg-zinc-950 text-zinc-100 border-zinc-800/60">
+        <DialogContent className="bg-card text-foreground border-border/60">
           <DialogHeader>
             <DialogTitle>Choose UID</DialogTitle>
           </DialogHeader>

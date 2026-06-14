@@ -17,9 +17,9 @@ export function DataSetting() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="flex flex-col gap-6 animate-in fade-in duration-500">
       <Card className="border-none shadow-none bg-transparent">
-        <CardContent className="px-0 space-y-6">
+        <CardContent className="px-0 flex flex-col gap-6">
           <ImportField
             id="import-url-kuro"
             label="Import URL (Kuro)"

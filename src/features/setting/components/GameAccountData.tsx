@@ -25,9 +25,9 @@ function ExportAction({ uid }: { uid: string }) {
       className="w-9 sm:w-28 px-0 sm:px-3 flex-shrink-0"
     >
       {isExporting ? (
-        <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
+        <Loader2 className="animate-spin" data-icon="inline-start" />
       ) : (
-        <Download className="h-4 w-4 sm:mr-2" />
+        <Download data-icon="inline-start" />
       )}
       <span className="hidden sm:inline">
         {isExporting ? "Exporting" : "Export"}
@@ -71,9 +71,9 @@ function DeleteAction({ uid }: { uid: string }) {
           className="w-9 sm:w-28 px-0 sm:px-3 flex-shrink-0"
         >
           {isDeleting === uid ? (
-            <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
+            <Loader2 className="animate-spin" data-icon="inline-start" />
           ) : (
-            <Trash2 className="h-4 w-4 sm:mr-2" />
+            <Trash2 data-icon="inline-start" />
           )}
           <span className="hidden sm:inline">
             {isDeleting === uid ? "Deleting" : "Delete"}
@@ -87,7 +87,7 @@ function DeleteAction({ uid }: { uid: string }) {
         <DialogHeader>
           <DialogTitle className="text-destructive">Delete Account</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+        <div className="flex flex-col gap-4 py-4">
           <p className="text-sm">
             Are you sure you want to delete the game account{" "}
             <span className="font-mono font-bold">{uid}</span>?
@@ -111,7 +111,7 @@ function DeleteAction({ uid }: { uid: string }) {
             >
               {deleteCountdown !== null && deleteCountdown > 0 ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="animate-spin" data-icon="inline-start" />
                   Wait {deleteCountdown}s
                 </>
               ) : (
@@ -145,7 +145,7 @@ export function GameAccountRow({ account }: { account: GameAccount }) {
       </div>
 
       <div className="flex items-center justify-between mt-2 pt-4 border-t border-destructive/20 gap-4">
-        <div className="space-y-0.5">
+        <div className="flex flex-col gap-0.5">
           <div className="text-sm font-medium text-destructive">
             Danger Zone
           </div>
@@ -168,7 +168,7 @@ export function GameAccountData() {
   );
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="flex flex-col gap-4 w-full">
       <div className="flex justify-between gap-2 mb-4">
         <div className="text-sm font-semibold flex items-center">
           Game Accounts

@@ -46,6 +46,9 @@ export function fetchWeaponsAction(forceUpdate = false): Promise<Weapon[]> {
 
       return fetchedData;
     })
+    .catch(() => {
+      return [];
+    })
     .finally(() => {
       fetchPromise = null;
     });

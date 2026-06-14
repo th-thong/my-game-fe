@@ -10,6 +10,8 @@ import BeginnerChoice from "@/assets/banner/BeginnerChoice.webp";
 import Give from "@/assets/banner/Give.webp";
 import Char30Day from "@/assets/banner/Char30Day.webp";
 import Weap30Day from "@/assets/banner/Weap30Day.webp";
+import CharCPE from "@/assets/banner/CharCPE.webp";
+import WeapCPE from "@/assets/banner/WeapCPE.webp";
 
 type BadgeType = "event" | "starter" | "discount" | "none";
 
@@ -38,6 +40,8 @@ const BANNERS: BannerItem[] = [
     badgeType: "event",
     badgeText: "EVENT",
   },
+  { id: 10, src: CharCPE, badgeType: "discount", badgeText: "COLLAB" },
+  { id: 11, src: WeapCPE, badgeType: "discount", badgeText: "COLLAB" },
   { id: 3, src: CharStandard, badgeType: "none" },
   { id: 4, src: WeapStandard, badgeType: "none" },
   { id: 5, src: CharBeginner, badgeType: "discount", badgeText: "20% OFF" },

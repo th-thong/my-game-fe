@@ -25,13 +25,11 @@ export function GachaStatistic({
   const totalAstrites = totalPulls * 160;
 
   const getAveragePity = (quality: number) => {
-    const indices = logs
-      .map((l, idx) => (l.qualityLevel === quality ? idx : -1))
-      .filter((idx) => idx !== -1);
+    const items = logs.filter((l) => l.qualityLevel === quality);
 
-    if (indices.length === 0) return "---";
-    const sumPity = indices[indices.length - 1] + 1;
-    return (sumPity / indices.length).toFixed(1);
+    if (items.length === 0) return "---";
+    const totalPity = items.reduce((sum, item) => sum + item.pity, 0);
+    return (totalPity / items.length).toFixed(1);
   };
 
   const avgFiveStar = getAveragePity(5);

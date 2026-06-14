@@ -17,14 +17,6 @@ export function GachaCardContent({
 }: GachaCardContentProps) {
   const { logs, storageKey, error } = use(gachaPromise);
 
-  if (error) {
-    return (
-      <CardContent className="p-4 pt-4 text-center text-red-500">
-        {error}
-      </CardContent>
-    );
-  }
-
   const filteredLogs = useMemo(() => {
     return [...logs]
       .filter((item) => {
@@ -33,6 +25,14 @@ export function GachaCardContent({
       })
       .reverse();
   }, [logs, selectedQualities, isDetailed]);
+
+  if (error) {
+    return (
+      <CardContent className="p-4 pt-4 text-center text-red-500">
+        {error}
+      </CardContent>
+    );
+  }
   return (
     <CardContent key={storageKey}>
       <div className="transition-all duration-100">

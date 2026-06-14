@@ -15,6 +15,7 @@ export const useOAuth = () => {
     setError(null);
 
     try {
+      if (!auth || !googleProvider) throw new Error("Firebase not available");
       const result = await signInWithPopup(auth, googleProvider);
 
       const idToken = await result.user.getIdToken();
@@ -32,7 +33,9 @@ export const useOAuth = () => {
         try {
           const errorData = await response.json();
           errorMessage = errorData.message || errorData.error || errorMessage;
-        } catch {}
+        } catch {
+          // JSON parse failed, use default error message
+        }
         throw new Error(errorMessage);
       }
 
@@ -40,8 +43,8 @@ export const useOAuth = () => {
       await fetchUserData();
 
       window.location.href = "/";
-    } catch (err: any) {
-      const errorMessage = err.message || "Login failed";
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message || "Login failed" : "Login failed";
       console.error("Firebase Auth Error:", err);
       setError(errorMessage);
       toast.error(errorMessage);
@@ -50,5 +53,19 @@ export const useOAuth = () => {
     }
   };
 
-  return { loginWithGoogle, isLoading, error };
-}
+  const noAuthLogin = async (email: string, name?: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await useUserStore.getState().noAuthLogin(email, name);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Login failed";
+      setError(msg);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { loginWithGoogle, noAuthLogin, isLoading, error };
+};

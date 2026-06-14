@@ -48,6 +48,9 @@ export function fetchCharactersAction(
 
       return fetchedData;
     })
+    .catch(() => {
+      return [];
+    })
     .finally(() => {
       fetchPromise = null;
     });

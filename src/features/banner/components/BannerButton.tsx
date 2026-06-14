@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export type BadgeType = "event" | "starter" | "discount" | "none";
 
@@ -32,11 +33,13 @@ const BannerButtonComponent = ({
   return (
     <Button
       onClick={() => onClick(id)}
-      className={`relative p-0 w-full h-auto rounded-none border-2 bg-transparent hover:bg-transparent active:bg-transparent focus:bg-transparent focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 overflow-hidden transition-all duration-200 lg:origin-left origin-center ${
+      className={cn(
+        "relative p-0 w-full h-auto rounded-none border-2 bg-transparent hover:bg-transparent active:bg-transparent focus:bg-transparent focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 overflow-hidden transition-all duration-200 lg:origin-left origin-center",
+        "border-primary/20",
         isActive
-          ? "scale-105 lg:scale-110 z-10 opacity-100 border-white"
-          : "scale-100 opacity-70 hover:opacity-100 border-white"
-      }`}
+          ? "scale-105 lg:scale-110 z-10 opacity-100 border-primary"
+          : "scale-100 opacity-70 hover:opacity-100",
+      )}
     >
       <img
         src={imageSrc}
