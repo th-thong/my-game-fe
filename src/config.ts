@@ -1,13 +1,14 @@
 const config = {
-  apiUrl: window._env_?.VITE_API_URL || "http://localhost:80",
-  imageUrl: window._env_?.VITE_IMAGE_URL || "",
+  apiUrl: window._env_?.VITE_API_URL || import.meta.env.VITE_API_URL || "http://localhost:80/",
+  imageUrl: window._env_?.VITE_IMAGE_URL || import.meta.env.VITE_IMAGE_URL || "",
+  authMode: window._env_?.VITE_AUTH_MODE !== "false",
   firebaseApiKey: window._env_?.VITE_API_KEY || "",
   firebaseAuthDomain: window._env_?.VITE_AUTH_DOMAIN || "",
   firebaseProjectId: window._env_?.VITE_PROJECT_ID || "",
-  firebaseStorageBucket: window._env_.VITE_STORAGE_BUCKET || "",
+  firebaseStorageBucket: window._env_?.VITE_STORAGE_BUCKET || "",
   firebaseMsgId: window._env_?.VITE_MSG_SENDER_ID || "",
-  firebaseAppId: window._env_.VITE_APP_ID || "",
-  gameVersion: window._env_.VITE_GAME_VERSION || "1.0-1st"
+  firebaseAppId: window._env_?.VITE_APP_ID || "",
+  gameVersion: window._env_?.VITE_GAME_VERSION || "1.0-1st"
 };
 
 export default config;

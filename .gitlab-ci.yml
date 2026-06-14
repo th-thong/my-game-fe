@@ -14,7 +14,7 @@ variables:
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
 
-build-staging:
+build-image-stg:
   <<: *docker_setup
   stage: build
   rules:
@@ -24,7 +24,7 @@ build-staging:
     - docker push $IMAGE_NAME:$CI_COMMIT_SHORT_SHA
     - docker push $IMAGE_NAME:dev
 
-build-prod:
+build-image-prod:
   <<: *docker_setup
   stage: build
   rules:
@@ -35,11 +35,31 @@ build-prod:
     - docker push $IMAGE_NAME:$CI_COMMIT_TAG
     - docker push $IMAGE_NAME:latest
 
+build-assets:
+  stage: build
+  image: node:24.14.0-alpine
+  rules:
+    - if: '$CI_COMMIT_TAG'
+  before_script:
+    - corepack enable && corepack prepare pnpm@latest --activate
+  script:
+    - pnpm install --frozen-lockfile
+    - echo "window.APP_CONFIG = { VAR_1:'VALUE_1' };" > public/env-config.js
+    - pnpm run build
+  artifacts:
+    name: "build-release-$CI_COMMIT_TAG"
+    paths:
+      - dist/
+    expire_in: 10 yrs
+
 gitlab-release:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   rules:
     - if: '$CI_COMMIT_TAG'
+  needs:
+    - job: build-assets
+      artifacts: true
   script:
     - echo "Creating GitLab Release for $CI_COMMIT_TAG"
   release:
@@ -49,6 +69,8 @@ gitlab-release:
       links:
         - name: 'Docker image'
           url: 'https://$IMAGE_NAME:$CI_COMMIT_TAG'
+        - name: 'Build Artifacts (dist.zip)'
+          url: '${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_TAG}/download?job=build-assets'
 
 push_to_github:
   stage: sync

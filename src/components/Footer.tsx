@@ -8,10 +8,10 @@ type ClickProps = {
 const About = () => {
   return (
     <div>
-      <h3 className="lg:pl-3.5 text-xs font-semibold text-zinc-100 mb-2 ">
+      <h3 className="lg:pl-3.5 text-xs font-semibold text-foreground mb-2 ">
         About
       </h3>
-      <p className="lg:pl-3.5 text-xs text-zinc-400 leading-relaxed max-w-80">
+      <p className="lg:pl-3.5 text-xs text-muted-foreground leading-relaxed max-w-80">
         MyWuwa is an unofficial fan-made website for Wuthering Waves. We are not
         affiliated with Kuro Games.
       </p>
@@ -27,8 +27,8 @@ const Resources = ({ onAction }: ClickProps) => {
 
   return (
     <div>
-      <h3 className="text-xs font-semibold text-zinc-100 mb-2">Resources</h3>
-      <ul className="space-y-1">
+      <h3 className="text-xs font-semibold text-foreground mb-2">Resources</h3>
+      <ul className="flex flex-col gap-1">
         {links.map((link) => (
           <FooterLink key={link.to} {...link} onAction={onAction} />
         ))}
@@ -40,16 +40,16 @@ const Resources = ({ onAction }: ClickProps) => {
 const Community = () => {
   return (
     <div>
-      <h3 className="text-xs font-semibold text-zinc-100 mb-2">Community</h3>
-      <ul className="space-y-1">
+      <h3 className="text-xs font-semibold text-foreground mb-2">Community</h3>
+      <ul className="flex flex-col gap-1">
         <li>
           <a
             href="https://gitlab.com/my-game873206"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-zinc-400 hover:text-zinc-200 transition-colors flex items-center gap-2"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
           >
-            <SiGitlab className="w-3 h-3" />
+            <SiGitlab className="size-3" />
             <span>GitLab</span>
           </a>
         </li>
@@ -61,7 +61,7 @@ const Community = () => {
 const Copyright = () => {
   return (
     <div className=" pt-3">
-      <p className="text-xs text-zinc-500 text-center">
+      <p className="text-xs text-muted-foreground text-center">
         © {new Date().getFullYear()} MyWuwa. All rights reserved. This is an
         unofficial fan-made website and is not affiliated with Kuro Games.
       </p>
@@ -82,7 +82,7 @@ const FooterLink = ({
     <Link
       to={to}
       onClick={onAction}
-      className="text-xs text-zinc-400 hover:text-zinc-200 transition-colors"
+      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
     >
       {label}
     </Link>
@@ -93,7 +93,7 @@ export function Footer() {
   const handleNavigationClick = () => window.scrollTo(0, 0);
 
   return (
-    <footer className="border-t border-zinc-800/60 bg-zinc-950/40 backdrop-blur-sm py-4 px-4">
+    <footer className="border-t border-border/60 bg-muted/10 backdrop-blur-sm py-4 px-4">
       <div className="max-w-7xl lg:max-w-6xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <About />

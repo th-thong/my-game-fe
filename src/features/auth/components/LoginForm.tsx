@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useOAuth } from "@/features/auth/hooks/useOAuth";
-import { Field, FieldGroup } from "@/components/ui/field";
+import { Field, FieldGroup, FieldError, FieldLabel } from "@/components/ui/field";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import config from "@/config";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 import {
   Card,
@@ -14,10 +17,75 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+function NoAuthLoginForm() {
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const { noAuthLogin } = useOAuth();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) {
+      setError("Email is required");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      await noAuthLogin(email.trim(), name.trim() || undefined);
+      window.location.href = "/";
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Login failed";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader className="text-center">
+        <CardTitle className="text-xl">Local Login</CardTitle>
+        <CardDescription>Enter your email to sign in</CardDescription>
+      </CardHeader>
+      <CardContent className="pt-6">
+        <form onSubmit={handleSubmit}>
+          <FieldGroup>
+            <Field>
+              <FieldLabel>Email</FieldLabel>
+              <Input
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Field>
+            <Field>
+              <FieldLabel>Name (optional)</FieldLabel>
+              <Input
+                type="text"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </Field>
+            {error && <FieldError>{error}</FieldError>}
+            <Field>
+              <Button type="submit" disabled={loading}>
+                {loading ? "Signing in..." : "Sign In"}
+              </Button>
+            </Field>
+          </FieldGroup>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+function GoogleLoginForm() {
   const { loginWithGoogle, isLoading, error } = useOAuth();
 
   useEffect(() => {
@@ -27,35 +95,44 @@ export function LoginForm({
   }, [error]);
 
   return (
+    <Card>
+      <CardHeader className="text-center">
+        <CardTitle className="text-xl">Welcome back</CardTitle>
+        <CardDescription>Login with your Google account</CardDescription>
+      </CardHeader>
+      <CardContent className="pt-6">
+        <form>
+          <FieldGroup>
+            <Field>
+              <Button
+                variant="outline"
+                type="button"
+                disabled={isLoading}
+                onClick={loginWithGoogle}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-icon="inline-start">
+                  <path
+                    d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
+                    fill="currentColor"
+                  />
+                </svg>
+                Login with Google
+              </Button>
+            </Field>
+          </FieldGroup>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function LoginForm({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>Login with your Google account</CardDescription>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <form>
-            <FieldGroup>
-              <Field>
-                <Button
-                  variant="outline"
-                  type="button"
-                  disabled={isLoading}
-                  onClick={loginWithGoogle}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path
-                      d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                  {isLoading ? "Connecting..." : "Login with Google"}
-                </Button>
-              </Field>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
+      {config.authMode ? <GoogleLoginForm /> : <NoAuthLoginForm />}
     </div>
   );
 }

@@ -32,9 +32,7 @@ export function useImport() {
     }
 
     try {
-      const res = await api.post("/convene/import/", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await api.post("/convene/import/", formData);
       toast.success(`Import successfully ${res.data.count} records!`);
       await useUserStore.getState().fetchUserData();
     } catch (error: unknown) {

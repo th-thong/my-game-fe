@@ -27,10 +27,10 @@ export function ImportField({
   loadingText = "Importing...",
 }: ImportFieldProps) {
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <div className="grid gap-2">
         <Label htmlFor={id}>{label}</Label>
-        <div className="flex w-full items-center space-x-2">
+        <div className="flex w-full items-center gap-2">
           <Input
             id={id}
             type="url"
@@ -46,7 +46,7 @@ export function ImportField({
             disabled={isLoading || !value.trim()}
             className="min-w-[100px]"
           >
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isLoading && <Loader2 className="animate-spin" data-icon="inline-start" />}
             {isLoading ? loadingText : buttonText}
           </Button>
         </div>

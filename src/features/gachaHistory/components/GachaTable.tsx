@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { GachaPagination } from "./GachaPagination";
+import { cn } from "@/lib/utils";
 import type { GachaItem } from "../hooks/useGachaPromise";
 
 export function GachaTable({ logs }: { logs: GachaItem[] }) {
@@ -45,11 +46,11 @@ export function GachaTable({ logs }: { logs: GachaItem[] }) {
   const emptyRows = pageSize - paginatedLogs.length;
 
   return (
-    <div className="space-y-2 w-full overflow-hidden">
+    <div className="flex flex-col gap-2 w-full overflow-hidden">
       <div className="rounded-xl   backdrop-blur-sm overflow-hidden">
         <Table className="table-fixed w-full">
           <TableHeader>
-            <TableRow className="border border-none">
+            <TableRow className="border-none">
               <TableHead className="w-12 lg:w-16 text-center text-[10px] uppercase font-bold text-zinc-500">
                 No
               </TableHead>
@@ -66,22 +67,20 @@ export function GachaTable({ logs }: { logs: GachaItem[] }) {
           </TableHeader>
           <TableBody>
             {paginatedLogs.map((item, idx) => (
-              <TableRow
-                key={item.id}
-                className="group h-10 lg:h-12 transition-colors border border-none"
-              >
+              <TableRow className="group h-10 lg:h-12 transition-colors border-none">
                 <TableCell className="text-center text-xs text-zinc-600 font-mono">
                   {logs.length - ((safePage - 1) * pageSize + idx)}
                 </TableCell>
                 <TableCell className="py-1">
                   <div
-                    className={`truncate text-xs lg:text-sm ${
+                    className={cn(
+                      "truncate text-xs lg:text-sm",
                       item.qualityLevel === 5
                         ? "text-yellow-400 font-bold"
                         : item.qualityLevel === 4
                           ? "text-purple-400 font-semibold"
-                          : "text-[#00d492] font-semibold"
-                    }`}
+                          : "text-[#00d492] font-semibold",
+                    )}
                   >
                     {item.name}
                   </div>

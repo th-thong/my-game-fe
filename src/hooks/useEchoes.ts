@@ -74,6 +74,9 @@ export function fetchEchoesAction(forceUpdate = false): Promise<Echo[]> {
 
       return fetchedData;
     })
+    .catch(() => {
+      return [];
+    })
     .finally(() => {
       fetchPromise = null;
     });

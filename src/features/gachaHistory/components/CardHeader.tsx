@@ -69,7 +69,7 @@ export function GachaCardHeader({
           <Suspense
             fallback={
               <div className="h-[42px] px-4 py-2 rounded-lg border border-zinc-800 inline-flex items-center justify-center shrink-0">
-                <Loader2 className="w-4 h-4 animate-spin text-zinc-500" />
+                <Loader2 className="animate-spin text-muted-foreground" data-icon="inline-start" />
                 <span className="ml-2 text-xs text-zinc-500">
                   Loading stats...
                 </span>
@@ -93,7 +93,7 @@ export function GachaCardHeader({
             />
           </div>
 
-          <div className="flex items-center space-x-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <Switch
               id="view-mode"
               checked={isDetailed}
@@ -116,9 +116,9 @@ export function GachaCardHeader({
             className="shrink-0"
           >
             {isUpdating ? (
-              <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+              <Loader2 className="animate-spin" data-icon="inline-start" />
             ) : (
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw data-icon="inline-start" />
             )}
           </Button>
         </div>
