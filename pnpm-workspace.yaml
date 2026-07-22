@@ -1,7 +1,10 @@
-allowBuilds:
-  '@firebase/util': true
-  esbuild: true
-  msw: true
-  protobufjs: true
+packages: []
+
+onlyBuiltDependencies:
+  - '@firebase/util'
+  - esbuild
+  - msw
+  - protobufjs
+
 ignoredBuiltDependencies:
   - sharp
