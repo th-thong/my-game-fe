@@ -9,12 +9,17 @@ export interface BannerItem {
   badgeText?: string;
 }
 
+let cachedBanners: BannerItem[] | null = null;
 let fetchPromise: Promise<BannerItem[]> | null = null;
 
 export function fetchBannersAction(forceUpdate = false): Promise<BannerItem[]> {
+  if (!forceUpdate && cachedBanners) {
+    return Promise.resolve(cachedBanners);
+  }
+
   if (!forceUpdate && fetchPromise) return fetchPromise;
 
-  fetchPromise = api
+  const promise = api
     .post("/data/query", {
       query: `
       query {
@@ -28,8 +33,7 @@ export function fetchBannersAction(forceUpdate = false): Promise<BannerItem[]> {
     `,
     })
     .then((res) => {
-      const banners = res.data?.data?.banners || [];
-      return banners.map(
+      const banners: BannerItem[] = (res.data?.data?.banners || []).map(
         (b: { Id: number; ImagePath: string; BadgeType: string; BadgeText?: string }) => ({
           id: b.Id,
           src: `${config.imageUrl}${b.ImagePath}?v=${config.gameVersion}`,
@@ -37,15 +41,18 @@ export function fetchBannersAction(forceUpdate = false): Promise<BannerItem[]> {
           badgeText: b.BadgeText || undefined,
         }),
       );
+      cachedBanners = banners;
+      return banners;
     })
-    .catch(() => {
-      return [] as BannerItem[];
+    .catch((): BannerItem[] => {
+      return [];
     })
     .finally(() => {
       fetchPromise = null;
     });
 
-  return fetchPromise;
+  fetchPromise = promise;
+  return promise;
 }
 
 export function useBanners() {
