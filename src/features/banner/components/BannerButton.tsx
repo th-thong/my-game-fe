@@ -2,7 +2,7 @@ import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export type BadgeType = "event" | "starter" | "discount" | "none";
+export type BadgeType = "event" | "starter" | "discount" | "reverb" | "none";
 
 interface BannerButtonProps {
   id: number;
@@ -18,6 +18,7 @@ const badgeStyles: Record<BadgeType, string> = {
   event: "bg-[#f5b041] text-zinc-950",
   starter: "bg-[#3498db] text-zinc-950",
   discount: "bg-[#2ecc71] text-zinc-950",
+  reverb: "bg-[#e67e22] text-zinc-950",
   none: "hidden",
 };
 

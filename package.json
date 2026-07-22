@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "generate-env": "bash scripts/generate-env.sh",
     "build": "tsc -b && vite build",
+    "build:cf": "bash scripts/generate-env.sh && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "prepare": "husky"
