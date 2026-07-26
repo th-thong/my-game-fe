@@ -8,7 +8,7 @@ const STANDARD_5_STARS = [
   "Lingyang",
   "Encore",
 ];
-const EXCLUDED_BANNERS = [2, 3, 4, 5, 6, 7, 9];
+const EXCLUDED_BANNERS = [2, 3, 4, 5, 6, 7, 9, 11, 12, 13];
 
 interface GachaStatisticProps {
   gachaPromise: Promise<GachaDataResult>;
